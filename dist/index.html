@@ -1,87 +1,66 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="An animated glass of water inspired by a studio photograph." />
-    <title>Pour — Water Study</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23091625'/%3E%3Cpath d='M32 10C24 21 17 29 17 40a15 15 0 0030 0c0-11-7-19-15-30z' fill='%236bd4ff'/%3E%3Cpath d='M24 42c5 5 12 5 18-1' fill='none' stroke='%23dff7ff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main class="stage">
-      <input class="motion-toggle" type="checkbox" id="motion" checked />
-
-      <div class="scene" aria-label="Animated water pouring into a glass">
-        <div class="ambient ambient--one"></div>
-        <div class="ambient ambient--two"></div>
-
-        <div class="pour" aria-hidden="true">
-          <div class="pour__highlight"></div>
-          <div class="pour__shine"></div>
-        </div>
-
-        <div class="droplet droplet--one" aria-hidden="true"></div>
-        <div class="droplet droplet--two" aria-hidden="true"></div>
-        <div class="droplet droplet--three" aria-hidden="true"></div>
-
-        <div class="glass" aria-hidden="true">
-          <div class="glass__rim"></div>
-          <div class="glass__body">
-            <div class="impact-stream">
-              <span></span>
-            </div>
-            <div class="water">
-              <div class="impact-splash">
-                <i></i><i></i><i></i><i></i>
-              </div>
-              <div class="water__surface">
-                <span></span><span></span><span></span>
-              </div>
-              <div class="water__glow"></div>
-              <div class="whorl whorl--one"></div>
-              <div class="whorl whorl--two"></div>
-              <i class="bubble bubble--1"></i>
-              <i class="bubble bubble--2"></i>
-              <i class="bubble bubble--3"></i>
-              <i class="bubble bubble--4"></i>
-              <i class="bubble bubble--5"></i>
-              <i class="bubble bubble--6"></i>
-              <i class="bubble bubble--7"></i>
-            </div>
-            <div class="glass__shine"></div>
-            <div class="glass__shadow"></div>
-          </div>
-          <div class="glass__base"></div>
-        </div>
-
-        <div class="puddle" aria-hidden="true">
-          <div class="puddle__reflection"></div>
-          <i></i><i></i><i></i><i></i>
-        </div>
-
-        <div class="surface-drops" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-        </div>
-
-        <div class="caption">
-          <p class="eyebrow">STUDY 01 / FLUID</p>
-          <h1>Pour</h1>
-          <p class="note">A quiet loop in glass and light.</p>
-        </div>
-      </div>
-
-      <label class="control" for="motion">
-        <span class="control__ripple" aria-hidden="true"></span>
-        <span class="control__drop" aria-hidden="true">
-          <span class="control__pause">Ⅱ</span>
-          <span class="control__play">▶</span>
-        </span>
-        <span class="control__label">
-          <span class="when-playing">Pause</span>
-          <span class="when-paused">Play</span>
-        </span>
-      </label>
-    </main>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A water photograph brought to life with subtle motion.">
+<title>Pour — Water Study</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23091625'/%3E%3Cpath d='M32 10C24 21 17 29 17 40a15 15 0 0030 0c0-11-7-19-15-30z' fill='%236bd4ff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<script src="motion.js" defer></script>
+</head>
+<body>
+<main class="stage">
+  <header class="caption">
+    <p class="eyebrow">STUDY 01 / FLUID</p>
+    <h1>Pour</h1>
+    <p class="note">Glass, water, light.</p>
+  </header>
+  <figure class="scene">
+    <!-- Photo pixels supply every detail; masks keep the glass and background still. -->
+    <svg id="water-scene" viewBox="0 0 417 422" role="img" aria-labelledby="scene-title scene-description">
+      <title id="scene-title">Water pouring into a clear glass</title>
+      <desc id="scene-description">The original photograph with subtle animated refraction in the stream, water, and puddle.</desc>
+      <defs>
+        <filter id="feather" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+        <mask id="stream-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="417" height="422">
+          <path fill="white" filter="url(#feather)" d="M253 -10 L288 -10 L264 33 L252 66 L239 99 L229 132 L215 167 L204 196 L198 218 L178 211 L189 179 L199 147 L210 113 L225 78 L237 42 Z"/>
+        </mask>
+        <mask id="water-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="417" height="422">
+          <path fill="white" filter="url(#feather)" d="M145 189 Q165 208 181 207 Q206 202 228 220 Q261 235 288 212 L288 282 Q279 301 219 301 Q164 302 146 282 Z"/>
+        </mask>
+        <mask id="puddle-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="417" height="422">
+          <path fill="white" filter="url(#feather)" d="M96 359 Q185 350 253 357 Q316 354 341 393 Q302 405 249 389 Q197 379 145 402 L88 413 L65 395 L139 376 Z"/>
+        </mask>
+        <filter id="stream-refraction" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency=".047 .022" numOctaves="2" seed="8" result="noise">
+            <animate attributeName="baseFrequency" values=".047 .022;.059 .035;.043 .029;.047 .022" dur="2.6s" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="water-refraction" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency=".025 .052" numOctaves="2" seed="21" result="noise">
+            <animate attributeName="baseFrequency" values=".025 .052;.034 .068;.029 .044;.025 .052" dur="3.8s" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="puddle-refraction" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency=".016 .075" numOctaves="1" seed="4" result="noise">
+            <animate attributeName="baseFrequency" values=".016 .075;.023 .095;.016 .075" dur="5s" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <image href="water-reference.png" width="417" height="422"/>
+      <g mask="url(#stream-mask)"><image href="water-reference.png" width="417" height="422" filter="url(#stream-refraction)"/></g>
+      <g mask="url(#water-mask)"><image href="water-reference.png" width="417" height="422" filter="url(#water-refraction)"/></g>
+      <g mask="url(#puddle-mask)"><image href="water-reference.png" width="417" height="422" filter="url(#puddle-refraction)"/></g>
+    </svg>
+  </figure>
+  <button class="control" id="motion" type="button" aria-label="Play animation" aria-pressed="false">
+    <span class="control__drop" aria-hidden="true"><span id="motion-icon">▶</span></span>
+    <span class="control__label" id="motion-label">Play</span>
+  </button>
+</main>
+</body>
 </html>
