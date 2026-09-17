@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluid Lab — Interactive 3D test</title>
+<meta name="description" content="Test real-time 3D water physics: stir, compress the tank, and inspect the particles.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1c29'/%3E%3Cpath d='M5 18q5-8 11 0t11 0v8H5z' fill='%236de0ea'/%3E%3C/svg%3E">
+  <script type="module" crossorigin src="/fluid/assets/index-DXwowy4y.js"></script>
+  <link rel="stylesheet" crossorigin href="/fluid/assets/index-D0Svu9Cs.css">
+</head>
+<body>
+<header class="topbar"><div><span class="brand">FLUID LAB</span><span class="badge">PROTOTYPE 01</span></div><a href="/">Photo study ↗</a></header>
+<main>
+<aside>
+<p class="eyebrow">REAL-TIME / 3D</p>
+<h1>Make waves.</h1>
+<p class="intro">Move your pointer through the water. Watch it push back.</p>
+<div class="status"><span id="gpu-status" role="status">Checking WebGPU…</span><span id="fps" aria-live="off">— FPS</span></div>
+<fieldset id="controls" disabled>
+<legend class="sr-only">Simulation controls</legend>
+<div class="buttons"><button id="pause" type="button" aria-pressed="false">Pause</button><button id="reset" type="button" class="secondary">Reset</button></div>
+<label for="quality">Particle count</label>
+<select id="quality"></select>
+<p class="hint">Low FPS? Keep Light selected and try Chrome or Edge with graphics acceleration enabled.</p>
+<label for="slider">Tank width <output id="slider-value">100%</output></label>
+<input type="range" id="slider" min="0" max="100" value="100">
+<p class="hint">Narrow the tank to send a wave across it.</p>
+<label for="speed">Speed <output id="speed-value">0.8×</output></label>
+<input type="range" id="speed" min="0.3" max="1" step="0.1" value="0.8">
+<label class="check"><input type="checkbox" id="particle"> Show individual particles</label>
+<label for="interaction">Drag action</label>
+<select id="interaction"><option value="rotate">Rotate camera</option><option value="stir">Stir water</option></select>
+</fieldset>
+<div class="instructions"><p><b>Move pointer</b> · disturb water</p><p><b>Drag</b> · selected action</p><p><b>Scroll</b> · zoom</p><p><b>P</b> · pause / resume</p></div>
+<p class="scope">Water-tank test. Pouring and glass geometry come next.</p>
+<footer>Adapted from <a href="https://github.com/matsuoka-601/Splash" target="_blank" rel="noopener">Splash by matsuoka-601</a> · <a href="LICENSE.txt">MIT license</a></footer>
+</aside>
+<section class="viewport" aria-label="Interactive water simulation">
+<canvas id="fluidCanvas" aria-label="3D fluid. Drag to rotate or stir; scroll to zoom." tabindex="0"></canvas>
+<div id="loading" class="message" role="status"><span class="loader"></span><h2>Preparing the water</h2><p id="error-reason">Checking your graphics device and loading the fluid simulation.</p><button type="button" id="retry" hidden>Try again</button></div>
+<span class="view-label">WATER TANK <span>MLS-MPM · WebGPU</span></span>
+</section>
+</main>
+</body>
+</html>
