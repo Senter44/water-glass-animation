@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="An animated glass of water inspired by a studio photograph." />
+    <title>Pour — Water Study</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23091625'/%3E%3Cpath d='M32 10C24 21 17 29 17 40a15 15 0 0030 0c0-11-7-19-15-30z' fill='%236bd4ff'/%3E%3Cpath d='M24 42c5 5 12 5 18-1' fill='none' stroke='%23dff7ff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="stage">
+      <input class="motion-toggle" type="checkbox" id="motion" checked />
+
+      <div class="scene" aria-label="Animated water pouring into a glass">
+        <div class="ambient ambient--one"></div>
+        <div class="ambient ambient--two"></div>
+
+        <div class="pour" aria-hidden="true">
+          <div class="pour__highlight"></div>
+          <div class="pour__shine"></div>
+        </div>
+
+        <div class="droplet droplet--one" aria-hidden="true"></div>
+        <div class="droplet droplet--two" aria-hidden="true"></div>
+        <div class="droplet droplet--three" aria-hidden="true"></div>
+
+        <div class="glass" aria-hidden="true">
+          <div class="glass__rim"></div>
+          <div class="glass__body">
+            <div class="impact-stream">
+              <span></span>
+            </div>
+            <div class="water">
+              <div class="impact-splash">
+                <i></i><i></i><i></i><i></i>
+              </div>
+              <div class="water__surface">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="water__glow"></div>
+              <div class="whorl whorl--one"></div>
+              <div class="whorl whorl--two"></div>
+              <i class="bubble bubble--1"></i>
+              <i class="bubble bubble--2"></i>
+              <i class="bubble bubble--3"></i>
+              <i class="bubble bubble--4"></i>
+              <i class="bubble bubble--5"></i>
+              <i class="bubble bubble--6"></i>
+              <i class="bubble bubble--7"></i>
+            </div>
+            <div class="glass__shine"></div>
+            <div class="glass__shadow"></div>
+          </div>
+          <div class="glass__base"></div>
+        </div>
+
+        <div class="puddle" aria-hidden="true">
+          <div class="puddle__reflection"></div>
+          <i></i><i></i><i></i><i></i>
+        </div>
+
+        <div class="surface-drops" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+
+        <div class="caption">
+          <p class="eyebrow">STUDY 01 / FLUID</p>
+          <h1>Pour</h1>
+          <p class="note">A quiet loop in glass and light.</p>
+        </div>
+      </div>
+
+      <label class="control" for="motion">
+        <span class="control__pause" aria-hidden="true">Ⅱ</span>
+        <span class="control__play" aria-hidden="true">▶</span>
+        <span class="control__label">
+          <span class="when-playing">Pause motion</span>
+          <span class="when-paused">Play motion</span>
+        </span>
+      </label>
+    </main>
+  </body>
+</html>
