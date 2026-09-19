@@ -61,3 +61,24 @@ test('particle buffers stay bounded and drain when flow stops', () => {
   model.reset();
   assert.equal(model.time, 0);
 });
+
+test('freshly emitted liquid is not advanced by a full extra frame', () => {
+  const model = new sandbox.BambooPhysics.Simulation(() => 0.5);
+  model.step(1 / 60, { x: 400, y: 100 }, 1, 600);
+  assert.ok(model.drops.length > 0);
+  assert.ok(model.drops.every(drop => drop.age <= 1 / 60));
+});
+
+test('stream parcels carry stable identity and narrow as gravity accelerates them', () => {
+  const { Simulation, radiusForDrop } = sandbox.BambooPhysics;
+  assert.equal(typeof radiusForDrop, 'function');
+  const model = new Simulation(() => 0.5);
+  model.step(1 / 60, { x: 400, y: 100 }, 1, 600);
+  const drop = model.drops[0];
+  const startRadius = radiusForDrop(drop);
+  const id = drop.id;
+  for (let i = 0; i < 20; i++) model.step(1 / 60, { x: 400, y: 100 }, 1, 600);
+  assert.equal(drop.id, id);
+  assert.ok(radiusForDrop(drop) < startRadius);
+  assert.equal(new Set(model.drops.map(item => item.id)).size, model.drops.length);
+});
