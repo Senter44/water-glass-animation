@@ -103,3 +103,11 @@ test('a trickle emits separate drops and a restart starts a new stream run', () 
   model.step(1 / 60, { x: 400, y: 100 }, 1, 600);
   assert.ok(model.drops.some(drop => drop.run > initialRun));
 });
+
+test('lowered bamboo delivers a broad stream that stays cohesive through the fall', () => {
+  const { Simulation, radiusForDrop } = sandbox.BambooPhysics;
+  const model = new Simulation(() => .5);
+  model.step(1 / 60, { x: 400, y: 100 }, 1, 600);
+  assert.ok(radiusForDrop(model.drops[0]) >= 8);
+  assert.ok(model.drops[0].breakupAge >= .8);
+});
