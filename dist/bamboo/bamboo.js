@@ -42,8 +42,10 @@
     pauseButton.textContent = paused ? 'Play' : 'Pause';
     pauseButton.setAttribute('aria-label', paused ? 'Play water animation' : 'Pause water animation');
     const g = geometry();
-    handle.style.left = `${(g.nozzle.x + 55) * scale}px`;
-    handle.style.top = `${(g.nozzle.y - 48) * scale}px`;
+    // Put the affordance on the outer shaft, leaving the wet opening visible.
+    const grip = BambooMouth.toWorld(g, { x: 480, y: 555 });
+    handle.style.left = `${clamp(grip.x * scale, 30, canvas.clientWidth - 30)}px`;
+    handle.style.top = `${clamp(grip.y * scale, 30, garden.clientHeight - 30)}px`;
   }
 
   function setHeight(value) {
@@ -218,6 +220,7 @@
     context.filter = 'saturate(0.9) brightness(0.96)';
     context.drawImage(bamboo, -g.width * 0.88, -g.width * 2 / 3 * 0.54, g.width, g.width * 2 / 3);
     context.restore();
+    BambooMouth.draw(context, bamboo, g, flowForHeight(height), model.time);
   }
 
   function animate(now) {

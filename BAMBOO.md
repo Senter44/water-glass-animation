@@ -14,6 +14,11 @@ narrows as gravity accelerates it, then breaks into droplets. Low flow produces
 separate drips. Newborn samples use their precise emission age, so the jet does
 not jump away from the lip at lower refresh rates.
 
+A moving shallow water film is visible on the inside floor of the bamboo. It
+refracts the inner texture and flows over the cut rim to the same anchor as the
+falling stream. Lifting the bamboo stops the overflow, leaving a faint wet lining.
+The drag handle sits on the shaft so it does not hide the opening.
+
 A small WebGL optical layer displaces the existing pond reflections using the
 eight latest impact waves, with subtle ambient surface motion. It falls back
 to the Canvas ripple rendering when WebGL is unavailable. This is a lightweight
@@ -58,6 +63,7 @@ Constraints: TRUE TRANSPARENT BACKGROUND with alpha channel; do not paint a chec
 
 ## Verification
 
-Run `node --test test/bamboo-physics.test.cjs` for flow, gravity, moving nozzle,
-particle lifetime, and responsive geometry checks. Browser checks cover dragging,
+Run `node --test test/bamboo-physics.test.cjs test/bamboo-mouth.test.cjs` for flow,
+gravity, moving nozzle, interior-to-outlet alignment, particle lifetime, and
+responsive geometry checks. Browser checks cover dragging,
 keyboard height control, Pause/Play, 390px and 1400px layouts, and switching tabs.
