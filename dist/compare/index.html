@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Compare a generated water photograph with an interactive Splash WebGPU fluid simulation.">
+  <meta name="description" content="Compare the earlier Pour photo study with an interactive Splash WebGPU fluid simulation.">
   <title>Water in Glass — Image vs Physics</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23081420'/%3E%3Cpath d='M7 7h18l-2 19H9L7 7z' fill='none' stroke='%2394e7f1' stroke-width='2'/%3E%3Cpath d='M9 16q7-3 14 0l-1 9H10z' fill='%234bb9dd'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="compare.css">
@@ -20,15 +20,15 @@
     <section class="intro" aria-labelledby="page-title">
       <p class="eyebrow">COMPARISON 01</p>
       <h1 id="page-title">Image <i>vs.</i> physics</h1>
-      <p>Compare visual realism with real-time behavior. Move across the live glass to disturb the simulated water.</p>
+      <p>Compare the earlier photo-based Pour study with real-time behavior. Move across the live glass to disturb the simulated water.</p>
     </section>
 
     <section class="comparison" aria-label="Side-by-side water comparison">
       <article class="panel generated">
-        <header><span class="index">01</span><div><p>GENERATED IMAGE</p><h2>Photorealistic still</h2></div><span class="mode">STATIC</span></header>
+        <header><span class="index">01</span><div><p>PREVIOUS STUDY</p><h2>Animated photograph</h2></div><span class="mode">PHOTO</span></header>
         <figure class="image-frame">
-          <img src="generated-water.png" alt="Photorealistic generated image of water pouring into a clear glass">
-          <figcaption>Detail is generated into the pixels: bubbles, reflections, splash and glass refraction.</figcaption>
+          <img src="../water-reference.png" alt="The earlier Pour study showing water flowing into a clear glass">
+          <figcaption>The earlier version uses the original photograph with subtle animated refraction.</figcaption>
         </figure>
       </article>
 
@@ -50,12 +50,12 @@
     </section>
 
     <section class="findings" aria-label="Comparison summary">
-      <div><span>REALISM</span><strong>Generated image</strong><p>Best glass optics, tiny bubbles and photographic detail.</p></div>
+      <div><span>REALISM</span><strong>Previous Pour study</strong><p>Best glass optics, surface detail and photographic realism.</p></div>
       <div><span>MOTION</span><strong>Splash physics</strong><p>Water reacts continuously to your pointer and the container.</p></div>
-      <div><span>LIMIT</span><strong>Different strengths</strong><p>The image cannot react; the simulation is not yet photorealistic.</p></div>
+      <div><span>LIMIT</span><strong>Different strengths</strong><p>The photograph only simulates subtle motion; Splash reacts but is not yet photorealistic.</p></div>
     </section>
   </main>
 
-  <footer><span>Generated with OpenAI image generation</span><span>Splash by matsuoka-601 · MIT</span></footer>
+  <footer><span>Previous Pour photo study</span><span>Splash by matsuoka-601 · MIT</span></footer>
 </body>
 </html>
