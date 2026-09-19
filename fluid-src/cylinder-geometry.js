@@ -1,5 +1,5 @@
 export function generateCylinderParticlePositions(boxSize, maxParticles, options = {}) {
-  const spacing = options.spacing ?? 0.9;
+  const spacing = options.spacing ?? 0.65;
   const wallMargin = options.wallMargin ?? 3;
   const floor = options.floor ?? 3;
   const fillRatio = options.fillRatio ?? 0.56;

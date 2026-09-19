@@ -44,8 +44,9 @@ fn fs(input: FragmentInput) -> @location(0) vec4f {
     let rayDirWorld = normalize((uniforms.invViewMatrix * vec4f(computeViewPosFromUVDepth(input.uv, 1.0), 0.)).xyz); // depth は適当
     let vertical = clamp(rayDirWorld.y * 0.5 + 0.5, 0.0, 1.0);
     let horizonGlow = pow(1.0 - abs(rayDirWorld.y), 4.0);
-    let lower = vec3f(0.055, 0.095, 0.12);
-    let upper = vec3f(0.38, 0.52, 0.58);
+    let lower = vec3f(0.12, 0.22, 0.28);
+    let upper = vec3f(0.48, 0.64, 0.70);
     let studio = mix(lower, upper, vertical) + horizonGlow * vec3f(0.08, 0.13, 0.15);
-    return vec4f(studio, 1.0);
+    let environment = textureSampleLevel(envmapTexture, textureSampler, rayDirWorld, 0.0).rgb;
+    return vec4f(mix(studio, environment, 0.06), 1.0);
 }

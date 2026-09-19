@@ -1,0 +1,7 @@
+.physics-stage {
+  background: radial-gradient(circle at 50% 18%, #607782 0, #3d5662 38%, #1e3540 72%, #10232d 100%);
+}
+
+.glass {
+  background: transparent;
+}

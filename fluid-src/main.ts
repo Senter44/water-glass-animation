@@ -68,7 +68,7 @@ async function init() {
 }
 
 function initGui(particleCountTexts: string[]) {
- const params = { running: !matchMedia('(prefers-reduced-motion: reduce)').matches, r:140, g:220, b:240, speed:0.8, colorDensity:0.7, numParticles:particleCountTexts[0], resetRequested:false };
+ const params = { running: !matchMedia('(prefers-reduced-motion: reduce)').matches, r:176, g:232, b:245, speed:0.8, colorDensity:0.035, numParticles:particleCountTexts[0], resetRequested:false };
  const pause = document.getElementById('pause') as HTMLButtonElement;
  const update = () => { pause.textContent = params.running ? 'Pause' : 'Resume'; pause.setAttribute('aria-pressed', String(!params.running)); };
  const toggle = () => { params.running = !params.running; update(); };
@@ -150,9 +150,9 @@ async function main() {
 	}
 
 	const simulationParams: simulationParam[] = [
- { particleCount: 6000, initBoxSize:[28,38,28], initDistance:43, mouseRadius:7, cameraTargetY:11, guiText:'Light · 6,000' },
- { particleCount: 16000, initBoxSize:[36,48,36], initDistance:56, mouseRadius:10, cameraTargetY:14, guiText:'Balanced · 16,000' },
- { particleCount: 30000, initBoxSize:[46,60,46], initDistance:72, mouseRadius:14, cameraTargetY:18, guiText:'Detailed · 30,000' }
+ { particleCount: 24000, initBoxSize:[28,38,28], initDistance:43, mouseRadius:7, cameraTargetY:21, guiText:'Glass · 24,000' },
+ { particleCount: 16000, initBoxSize:[36,48,36], initDistance:56, mouseRadius:10, cameraTargetY:26, guiText:'Balanced · 16,000' },
+ { particleCount: 30000, initBoxSize:[46,60,46], initDistance:72, mouseRadius:14, cameraTargetY:33, guiText:'Detailed · 30,000' }
  ]
 	const particleCountTexts = simulationParams.map(param => param.guiText)
 	const guiParams = initGui(particleCountTexts)
