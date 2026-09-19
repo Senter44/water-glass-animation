@@ -62,3 +62,14 @@ test('cylinder projection leaves an interior particle unchanged', () => {
   );
   assert.deepEqual(result, { position: [12, 10, 12], velocity: [-2, 1, 3] });
 });
+
+test('default cylinder settings generate a bounded sample', () => {
+  const positions = generateCylinderParticlePositions([24, 32, 24], 50);
+  assert.equal(positions.length, 50);
+  assert.ok(positions.every(([x, , z]) => Math.hypot(x - 12, z - 12) <= 9));
+});
+
+test('a particle exactly on the wall is not moved', () => {
+  const result = projectParticleToCylinder([21, 10, 12], [1, 0, 0], [24, 32, 24]);
+  assert.deepEqual(result, { position: [21, 10, 12], velocity: [1, 0, 0] });
+});

@@ -41,28 +41,11 @@ fn rayPlaneIntersection(rayOrigin: vec3f, rayDir: vec3f) -> vec3f {
 
 @fragment
 fn fs(input: FragmentInput) -> @location(0) vec4f {
-    let cameraPos = getCameraPosition();
     let rayDirWorld = normalize((uniforms.invViewMatrix * vec4f(computeViewPosFromUVDepth(input.uv, 1.0), 0.)).xyz); // depth は適当
-    let bgColor = textureSampleLevel(envmapTexture, textureSampler, rayDirWorld, 0.).rgb;
-    if (abs(rayDirWorld.y) < 1e-6) { // y = 0 と交差しない
-        return vec4f(bgColor, 1.);
-    } 
-
-    let t = -cameraPos.y / rayDirWorld.y;
-    if (t < 0) {
-        return vec4f(bgColor, 1.);
-    }
-    let rayHitPos = cameraPos + t * rayDirWorld;
-    let gridSize = 16.0;
-    let lineThickness = 0.2; 
-
-    let isLineX = abs(fract(rayHitPos.x / gridSize - 0.5) - 0.5) < lineThickness / gridSize;
-    let isLineZ = abs(fract(rayHitPos.z / gridSize - 0.5) - 0.5) < lineThickness / gridSize;
-    let isLine = isLineX || isLineZ;
-
-    let boardColor = vec3(0.6); 
-    let lineColor = vec3(0.5); 
-    var finalColor = select(boardColor, lineColor, isLine);
-    finalColor = select(bgColor, finalColor, abs(rayHitPos.x) < 3e2 && abs(rayHitPos.z) < 3e2);
-    return vec4f(finalColor, 1.);
+    let vertical = clamp(rayDirWorld.y * 0.5 + 0.5, 0.0, 1.0);
+    let horizonGlow = pow(1.0 - abs(rayDirWorld.y), 4.0);
+    let lower = vec3f(0.055, 0.095, 0.12);
+    let upper = vec3f(0.38, 0.52, 0.58);
+    let studio = mix(lower, upper, vertical) + horizonGlow * vec3f(0.08, 0.13, 0.15);
+    return vec4f(studio, 1.0);
 }

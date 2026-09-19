@@ -79,8 +79,6 @@ function initGui(particleCountTexts: string[]) {
  quality.addEventListener('change', () => { params.numParticles = quality.value; });
  const speed = document.getElementById('speed') as HTMLInputElement;
  speed.addEventListener('input', () => { params.speed = Number(speed.value); document.getElementById('speed-value')!.textContent = speed.value + '×'; });
- const width = document.getElementById('slider') as HTMLInputElement;
- width.addEventListener('input', () => { document.getElementById('slider-value')!.textContent = (50 + Number(width.value) / 2) + '%'; });
  document.addEventListener('keydown', event => { if (event.code === 'KeyP' && !(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLSelectElement) && !event.repeat) toggle(); });
  update();
  return params;
@@ -152,9 +150,9 @@ async function main() {
 	}
 
 	const simulationParams: simulationParam[] = [
- { particleCount: 4000, initBoxSize:[24,28,24], initDistance:29, mouseRadius:7, cameraTargetY:5, guiText:'Light · 4,000' },
- { particleCount: 16000, initBoxSize:[40,40,40], initDistance:42, mouseRadius:10, cameraTargetY:8, guiText:'Balanced · 16,000' },
- { particleCount: 40000, initBoxSize:[60,50,60], initDistance:60, mouseRadius:15, cameraTargetY:10, guiText:'Detailed · 40,000' }
+ { particleCount: 6000, initBoxSize:[28,38,28], initDistance:43, mouseRadius:7, cameraTargetY:11, guiText:'Light · 6,000' },
+ { particleCount: 16000, initBoxSize:[36,48,36], initDistance:56, mouseRadius:10, cameraTargetY:14, guiText:'Balanced · 16,000' },
+ { particleCount: 30000, initBoxSize:[46,60,46], initDistance:72, mouseRadius:14, cameraTargetY:18, guiText:'Detailed · 30,000' }
  ]
 	const particleCountTexts = simulationParams.map(param => param.guiText)
 	const guiParams = initGui(particleCountTexts)
@@ -267,11 +265,7 @@ async function main() {
 
 	let sphereRenderFl = false
 	let rotateFl = false
-	let boxWidthRatio = 1.
-
 	console.log("simulation start")
-	let closingSpeed = 0.
-	let prevClosingSpeed = 0.
 
 	
 	let firstFrame = true;
@@ -283,7 +277,7 @@ async function main() {
 		const selectedValue = particleCountTexts.indexOf(guiParams.numParticles);
 		let resetThisFrame = false;
  if (Number(selectedValue) != paramsIdx || guiParams.resetRequested) {
-  resetThisFrame = true; guiParams.resetRequested = false; boxWidthRatio = 1; closingSpeed = 0; prevClosingSpeed = 0;
+  resetThisFrame = true; guiParams.resetRequested = false;
 			paramsIdx = Number(selectedValue)
 			simulationParam = simulationParams[paramsIdx]
 			initBoxSize = simulationParam.initBoxSize
@@ -291,29 +285,10 @@ async function main() {
 			camera.reset(simulationParam.initDistance, [initBoxSize[0] / 2, simulationParam.cameraTargetY, initBoxSize[2] / 2], 
 				mlsmpmFov, mlsmpmZoomRate)
 			realBoxSize = [...initBoxSize]
-			let slider = document.getElementById("slider") as HTMLInputElement
-			slider.value = "100"
- document.getElementById("slider-value")!.textContent = "100%"
 		}
 
 		const particle = document.getElementById("particle") as HTMLInputElement
 		sphereRenderFl = particle.checked
-		if (guiParams.running) {
-			const slider = document.getElementById("slider") as HTMLInputElement
-			let curBoxWidthRatio = parseInt(slider.value) / 200 + 0.5
-			const maxClosingSpeed = 0.007 * guiParams.speed
-			closingSpeed = Math.min(maxClosingSpeed, prevClosingSpeed + maxClosingSpeed / 40.)
-			let dVal = Math.min(boxWidthRatio - curBoxWidthRatio, closingSpeed)
-			boxWidthRatio -= dVal
-			if (dVal <= 0.) {
-				closingSpeed = 0.
-				prevClosingSpeed = 0.
-			} else {
-				prevClosingSpeed = closingSpeed
-			}	
-		}
-
-		realBoxSize[2] = initBoxSize[2] * boxWidthRatio
 		mlsmpmSimulator.changeBoxSize(realBoxSize)
 
 		// matrices are written by camera.ts

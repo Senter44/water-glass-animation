@@ -91,16 +91,30 @@ fn updateGrid(@builtin(global_invocation_id) id: vec3<u32>) {
             floatV /= decodeFixedPoint(cells[id.x].mass);
 
             let strength = smoothstep(r*r, 0., cellSquareDistToMouse) * 0.2;   
-            cells[id.x].vx = encodeFixedPoint(floatV.x + strength * forceDir.x); 
-            cells[id.x].vy = encodeFixedPoint(floatV.y + strength * forceDir.y - 0.40 * dt); 
-            cells[id.x].vz = encodeFixedPoint(floatV.z + strength * forceDir.z); 
+            floatV += strength * forceDir;
+            floatV.y -= 0.40 * dt;
 
             var x: i32 = i32(id.x) / i32(initBoxSize.z) / i32(initBoxSize.y);
             var y: i32 = (i32(id.x) / i32(initBoxSize.z)) % i32(initBoxSize.y);
             var z: i32 = i32(id.x) % i32(initBoxSize.z);
-            if (x < 2 || x > i32(ceil(realBoxSize.x) - 3)) { cells[id.x].vx = 0; } 
-            if (y < 2 || y > i32(ceil(realBoxSize.y) - 3)) { cells[id.x].vy = 0; }
-            if (z < 2 || z > i32(ceil(realBoxSize.z) - 3)) { cells[id.x].vz = 0; }
+            let cylinderCenter = vec2f(realBoxSize.x, realBoxSize.z) * 0.5;
+            let radial = vec2f(f32(x), f32(z)) - cylinderCenter;
+            let radialDistance = length(radial);
+            let cylinderRadius = min(realBoxSize.x, realBoxSize.z) * 0.5 - 3.0;
+            if (radialDistance > cylinderRadius - 1.5 && radialDistance > 0.0) {
+                let normal = radial / radialDistance;
+                let outwardSpeed = dot(floatV.xz, normal);
+                if (outwardSpeed > 0.0) {
+                    let corrected = floatV.xz - normal * outwardSpeed;
+                    floatV.x = corrected.x;
+                    floatV.z = corrected.y;
+                }
+            }
+            if (y < 2 || y > i32(ceil(realBoxSize.y) - 3)) { floatV.y = 0; }
+
+            cells[id.x].vx = encodeFixedPoint(floatV.x);
+            cells[id.x].vy = encodeFixedPoint(floatV.y);
+            cells[id.x].vz = encodeFixedPoint(floatV.z);
         }
     }
 }

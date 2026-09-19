@@ -7,6 +7,7 @@ import copyPosition from './copyPosition.wgsl'
 import p2gDensity from './p2gDensity.wgsl'
 import clearDensityGrid from './clearDensityGrid.wgsl'
 import castDensityGrid from './castDensityGrid.wgsl'
+import { generateCylinderParticlePositions } from '../cylinder-geometry.js'
 
 export const mlsmpmParticleStructSize = 80
 
@@ -317,26 +318,14 @@ export class MLSMPMSimulator {
 
     initDambreak(initBoxSize: number[], numParticles: number) {
         let particlesBuf = new ArrayBuffer(mlsmpmParticleStructSize * this.maxParticleCount);
-        const spacing = 0.9 ;
-
         this.numParticles = 0;
 
-        let sphereCenter = [initBoxSize[0] / 2, initBoxSize[0] / 2, initBoxSize[2] / 2]
-        
-        for (let j = 3; j < initBoxSize[1] * 0.80 && this.numParticles < numParticles; j += spacing) {
-            for (let i = initBoxSize[0] * 0.25; i < initBoxSize[0] - 4 && this.numParticles < numParticles; i += spacing) {
-                for (let k = 3; k < initBoxSize[2] / 2 && this.numParticles < numParticles; k += spacing) {
-                    const offset = mlsmpmParticleStructSize * this.numParticles;
-                    const particleViews = {
-                        position: new Float32Array(particlesBuf, offset + 0, 3),
-                        v: new Float32Array(particlesBuf, offset + 16, 3),
-                        C: new Float32Array(particlesBuf, offset + 32, 12),
-                    };
-                    const jitter = 0.5 * Math.random();
-                    particleViews.position.set([i + jitter, j + jitter, k + jitter]);
-                    this.numParticles++;
-                }
-            }
+        const positions = generateCylinderParticlePositions(initBoxSize, numParticles);
+        for (const position of positions) {
+            const offset = mlsmpmParticleStructSize * this.numParticles;
+            const particlePosition = new Float32Array(particlesBuf, offset, 3);
+            particlePosition.set(position);
+            this.numParticles++;
         }
         
         console.log(this.numParticles)
