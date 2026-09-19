@@ -5,7 +5,19 @@ const vm = require('node:vm');
 const path = require('node:path');
 const sandbox = {};
 const source = path.join(__dirname, '../dist/bamboo/physics.js');
-if (fs.existsSync(source)) vm.runInNewContext(fs.readFileSync(source, 'utf8'), sandbox);
+if (fs.existsSync(source)) vm.runInNewContext(fs.readFileSync(source, 'utf8'), sandbox, { filename: source });
+
+test('bamboo lip stays visible and above water at every height on wide and narrow screens', () => {
+  assert.equal(typeof sandbox.BambooPhysics.geometryForScene, 'function');
+  for (const [width, poolY] of [[2048, 367], [1790, 401], [750, 512], [420, 512]]) {
+    for (let height = 0; height <= 100; height += 5) {
+      const g = sandbox.BambooPhysics.geometryForScene(width, poolY, height);
+      assert.ok(g.nozzle.y >= 60);
+      assert.ok(g.nozzle.y <= poolY - 70);
+      assert.ok(g.nozzle.x > 0 && g.nozzle.x < width - 70);
+    }
+  }
+});
 
 test('lowering bamboo increases flow; raised bamboo stops', () => {
   assert.ok(sandbox.BambooPhysics, 'Bamboo physics is implemented');
