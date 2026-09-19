@@ -2,7 +2,7 @@
   'use strict';
   const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
   const flowForHeight = height => Math.pow(clamp((88 - height) / 88, 0, 1), 1.35);
-  const radiusForDrop = drop => clamp(drop.sourceRadius * Math.sqrt(drop.initialSpeed / drop.vy), 0.5, 4);
+  const radiusForDrop = drop => clamp(drop.sourceRadius * Math.sqrt(drop.initialSpeed / drop.vy), 0.5, 10);
 
   function geometryForScene(worldWidth, poolY, height) {
     const width = clamp(worldWidth * 0.9, 350, 900);
@@ -55,8 +55,9 @@
             this.lastImpact = this.time;
             this.impactInterval = 0.08 + this.random() * 0.07;
             if (this.ripples.length < 28) this.ripples.push({ x: drop.x, y: poolY, age: 0, strength: clamp(drop.vy / 900, 0.3, 1) });
-            for (let j = 0; j < 3 && this.splashes.length < 80; j++) {
-              this.splashes.push({ x: drop.x, y: poolY, vx: (this.random() - 0.5) * 150, vy: -40 - this.random() * 100, age: 0, size: 0.5 + this.random() * 0.6 });
+            const impact = clamp(drop.vy / 900, .3, 1);
+            for (let j = 0; j < 3 + Math.round(drop.flow * 3) && this.splashes.length < 80; j++) {
+              this.splashes.push({ x: drop.x + (this.random() - .5) * radiusForDrop(drop), y: poolY, vx: (this.random() - 0.5) * (120 + 100 * drop.flow), vy: -45 - this.random() * 160 * impact * (.6 + drop.flow), age: 0, size: 0.5 + this.random() * 0.9 });
             }
           }
           this.drops.splice(i, 1);
@@ -88,15 +89,15 @@
         const age = Math.min(dt, this.emission / rate);
         const bornAt = this.time - age;
         const vx = -10 - 18 * flow + 1.6 * Math.sin(bornAt * 5.3) + 0.7 * Math.sin(bornAt * 13.1);
-        const initialSpeed = 40 + flow * 78 + 5 * Math.sin(bornAt * 9.2);
+        const initialSpeed = 55 + flow * 130 + 5 * Math.sin(bornAt * 9.2);
         this.drops.push({
           id: this.sequence++, run: this.run, bornAt, flow,
           originX: nozzle.x, originY: nozzle.y,
           x: nozzle.x + vx * age,
           y: nozzle.y + initialSpeed * age + 600 * age * age,
           vx, vy: initialSpeed + 1200 * age, initialSpeed, age,
-          sourceRadius: dripping ? 2.3 + this.random() * 0.7 : 1.4 + 2.5 * Math.sqrt(flow),
-          breakupAge: dripping ? 0 : 0.16 + 0.35 * Math.sqrt(flow) + 0.04 * Math.sin(bornAt * 7.7),
+          sourceRadius: dripping ? 2.3 + this.random() * 0.7 : 3 + 7 * Math.sqrt(flow),
+          breakupAge: dripping ? 0 : 0.28 + 0.6 * Math.sqrt(flow) + 0.04 * Math.sin(bornAt * 7.7),
           size: 0.85 + this.random() * 0.7,
         });
         this.nextDrip = 0.7 + this.random() * 0.6;

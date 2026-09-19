@@ -38,7 +38,7 @@
     const flow = flowForHeight(height);
     heightInput.value = String(Math.round(height));
     heightInput.setAttribute('aria-valuetext', `${Math.round(height)} percent raised`);
-    flowState.textContent = paused ? 'Motion paused' : flow < 0.001 ? 'Flow stopped' : flow < 0.18 ? 'Slow drops' : flow < 0.65 ? 'Gentle flow' : 'Steady pour';
+    flowState.textContent = paused ? 'Motion paused' : flow < 0.001 ? 'Flow stopped' : flow < 0.18 ? 'Slow drops' : flow < 0.5 ? 'Gentle flow' : 'Steady pour';
     pauseButton.textContent = paused ? 'Play' : 'Pause';
     pauseButton.setAttribute('aria-label', paused ? 'Play water animation' : 'Pause water animation');
     const g = geometry();
