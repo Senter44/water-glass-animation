@@ -41,8 +41,19 @@ test('initial liquid occupies both the hollow interior and basin, never bamboo m
     assert.ok(G.solidDistance(G.toLocal(pos, a)) >= .2);
     if (pos[1] > 15) interior++; else basin++;
   }
-  assert.ok(interior > 1000);
+  assert.ok(interior > 500, 'a shallow reservoir is present for the gentler pour');
   assert.ok(basin > 4000);
+});
+
+test('gentle emission remains the same across one-step and six-step frames', () => {
+  assert.ok(context.BambooGeometry?.EmissionBudget, 'fractional fixed-step emission budget exists');
+  for (const flow of [.01,.25,.7,1]) {
+    const a=new context.BambooGeometry.EmissionBudget(),b=new context.BambooGeometry.EmissionBudget();
+    let fast=0,slow=0;
+    for(let i=0;i<120;i++)fast+=a.take(flow,1);
+    for(let i=0;i<20;i++)slow+=b.take(flow,6);
+    assert.ok(Math.abs(fast-slow)<=1);
+  }
 });
 
 test('particle collision pushes liquid out of bamboo walls without blocking the opening', () => {
