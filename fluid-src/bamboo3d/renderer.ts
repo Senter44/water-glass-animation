@@ -4,8 +4,11 @@ import sceneShader from './scene.wgsl';
 import meshShader from './mesh.wgsl';
 import waterShader from './water.wgsl';
 import particleShader from './particle.wgsl';
+import surfaceShader from './surface.wgsl';
+import './surface.js';
 import filterShader from '../render/narrowRangeFilter.wgsl';
 import fullScreen from '../render/fullScreen.wgsl';
+declare const FluidSurface:any;
 
 export class Renderer {
   readonly uniform:GPUBuffer;
@@ -13,11 +16,11 @@ export class Renderer {
   readonly textures:GPUTexture[]=[];
   readonly buffers:GPUBuffer[]=[];
   private background:GPURenderPipeline; private mesh:GPURenderPipeline;private water:GPURenderPipeline;
-  private particles:GPURenderPipeline;private thickness:GPURenderPipeline;private filter:GPURenderPipeline;
+  private particles:GPURenderPipeline;private moments:GPURenderPipeline;private resolve:GPURenderPipeline;private filter:GPURenderPipeline;
   private bgGroup:GPUBindGroup;private meshGroup:GPUBindGroup;private waterGroup:GPUBindGroup;
-  private particleGroup:GPUBindGroup;private thicknessGroup:GPUBindGroup;private filterGroups:GPUBindGroup[];
+  private particleGroup:GPUBindGroup;private momentsGroup:GPUBindGroup;private resolveGroup:GPUBindGroup;private filterGroups:GPUBindGroup[];
   private color:GPUTextureView;private worldDepth:GPUTextureView;private depthTest:GPUTextureView;
-  private fluidDepth:GPUTextureView;private tempDepth:GPUTextureView;private fluidTest:GPUTextureView;private thicknessView:GPUTextureView;
+  private fluidDepth:GPUTextureView;private tempDepth:GPUTextureView;private fluidTest:GPUTextureView;private thicknessView:GPUTextureView;private momentsView:GPUTextureView;
   private vertex:GPUBuffer;private vertexCount:number;
   constructor(readonly device:GPUDevice, readonly canvas:HTMLCanvasElement, format:GPUTextureFormat, positions:GPUBuffer, bamboo:GPUBuffer, garden:GPUTexture, vertices:Float32Array){
     const buffer=(size:number,usage:number)=>{const b=device.createBuffer({size,usage:usage|GPUBufferUsage.COPY_DST});this.buffers.push(b);return b;};
@@ -26,6 +29,7 @@ export class Renderer {
     const texture=(format:GPUTextureFormat)=>{const t=device.createTexture({size:[canvas.width,canvas.height],format,usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING});this.textures.push(t);return t.createView();};
     this.color=texture(format);this.worldDepth=texture('r32float');this.depthTest=texture('depth32float');
     this.fluidDepth=texture('r32float');this.tempDepth=texture('r32float');this.fluidTest=texture('depth32float');this.thicknessView=texture('r16float');
+    this.momentsView=texture('rgba16float');
     const shader=(label:string,code:string)=>device.createShaderModule({label,code});
     const sceneModule=shader('3D stone basin and garden',sceneShader),meshModule=shader('Blender bamboo material',boundary+meshShader),waterModule=shader('Water refraction and scene-depth occlusion',waterShader);
     const depthModule=shader('Splash ellipsoid surface',particleShader);
@@ -34,8 +38,11 @@ export class Renderer {
     this.background=device.createRenderPipeline({layout:'auto',vertex:{module:sceneModule},fragment:{module:sceneModule,targets},depthStencil});
     this.mesh=device.createRenderPipeline({layout:'auto',vertex:{module:meshModule,buffers:[{arrayStride:32,attributes:[{shaderLocation:0,offset:0,format:'float32x3'},{shaderLocation:1,offset:12,format:'float32x3'},{shaderLocation:2,offset:24,format:'float32'}]}]},fragment:{module:meshModule,targets},depthStencil});
     this.water=device.createRenderPipeline({layout:'auto',vertex:{module:waterModule},fragment:{module:waterModule,targets:[{format}]}});
-    this.particles=device.createRenderPipeline({layout:'auto',vertex:{module:depthModule,entryPoint:'vs'},fragment:{module:depthModule,entryPoint:'depth',targets:[{format:'r32float'}]},depthStencil});
-    this.thickness=device.createRenderPipeline({layout:'auto',vertex:{module:depthModule,entryPoint:'vs'},fragment:{module:depthModule,entryPoint:'thickness',targets:[{format:'r16float',blend:{color:{srcFactor:'one',dstFactor:'one',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one',operation:'add'}}}]}});
+    const support={supportScale:FluidSurface.supportScale};
+    this.particles=device.createRenderPipeline({layout:'auto',vertex:{module:depthModule,entryPoint:'vs',constants:support},fragment:{module:depthModule,entryPoint:'depth',constants:{cutoff:FluidSurface.cutoff,falloff:FluidSurface.falloff,fringeTag:FluidSurface.fringeTag},targets:[{format:'r32float'}]},depthStencil});
+    this.moments=device.createRenderPipeline({layout:'auto',vertex:{module:depthModule,entryPoint:'vs',constants:support},fragment:{module:depthModule,entryPoint:'moments',constants:{falloff:FluidSurface.falloff,layerBand:FluidSurface.layerBand,fringeTag:FluidSurface.fringeTag},targets:[{format:'rgba16float',blend:{color:{srcFactor:'one',dstFactor:'one',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one',operation:'add'}}}]}});
+    const resolveModule=shader('Merged fluid density contour',surfaceShader);
+    this.resolve=device.createRenderPipeline({layout:'auto',vertex:{module:resolveModule},fragment:{module:resolveModule,constants:{cutoff:FluidSurface.cutoff,fringeTag:FluidSurface.fringeTag},targets:[{format:'r32float'},{format:'r16float'}]}});
     this.filter=device.createRenderPipeline({layout:'auto',vertex:{module:shader('Full screen',fullScreen),constants:{screenWidth:canvas.width,screenHeight:canvas.height}},fragment:{module:shader('Splash narrow-range surface filter',filterShader),constants:{maxFilterSize:8,projectedParticleConstant:canvas.height*.36,blur2D:0},targets:[{format:'r32float'}]}});
     const sampler=device.createSampler({magFilter:'linear',minFilter:'linear'}),photo=garden.createView();
     const resource=(b:GPUBuffer)=>({buffer:b});
@@ -44,7 +51,8 @@ export class Renderer {
     this.meshGroup=group(this.mesh,[{binding:0,resource:resource(this.uniform)},{binding:1,resource:resource(bamboo)},{binding:2,resource:photo},{binding:3,resource:sampler}]);
     this.waterGroup=group(this.water,[{binding:0,resource:resource(this.uniform)},{binding:1,resource:this.fluidDepth},{binding:2,resource:this.thicknessView},{binding:3,resource:this.color},{binding:4,resource:this.worldDepth},{binding:5,resource:photo},{binding:6,resource:sampler}]);
     this.particleGroup=group(this.particles,[{binding:0,resource:resource(positions)},{binding:1,resource:resource(this.uniform)}]);
-    this.thicknessGroup=group(this.thickness,[{binding:0,resource:resource(positions)},{binding:1,resource:resource(this.uniform)}]);
+    this.momentsGroup=group(this.moments,[{binding:0,resource:resource(positions)},{binding:1,resource:resource(this.uniform)},{binding:2,resource:this.tempDepth}]);
+    this.resolveGroup=group(this.resolve,[{binding:0,resource:this.momentsView},{binding:1,resource:this.tempDepth}]);
     this.filterGroups=[[1,0],[0,1]].map((direction,i)=>{const b=buffer(8,GPUBufferUsage.UNIFORM);device.queue.writeBuffer(b,0,new Float32Array(direction));return group(this.filter,[{binding:1,resource:i?this.tempDepth:this.fluidDepth},{binding:2,resource:resource(b)}]);});
   }
   camera(yaw:number,pitch:number){
@@ -62,12 +70,15 @@ export class Renderer {
     const scene=encoder.beginRenderPass({colorAttachments:[attachment(this.color),attachment(this.worldDepth,1e6)],depthStencilAttachment:depth(this.depthTest)});
     scene.setPipeline(this.background);scene.setBindGroup(0,this.bgGroup);scene.draw(3);
     scene.setPipeline(this.mesh);scene.setBindGroup(0,this.meshGroup);scene.setVertexBuffer(0,this.vertex);scene.draw(this.vertexCount);scene.end();
-    const particles=encoder.beginRenderPass({colorAttachments:[attachment(this.fluidDepth,1e6)],depthStencilAttachment:depth(this.fluidTest)});
+    const particles=encoder.beginRenderPass({colorAttachments:[attachment(this.tempDepth,1e6)],depthStencilAttachment:depth(this.fluidTest)});
     particles.setPipeline(this.particles);particles.setBindGroup(0,this.particleGroup);particles.draw(6,count);particles.end();
+    const moments=encoder.beginRenderPass({colorAttachments:[{...attachment(this.momentsView),clearValue:{r:0,g:0,b:0,a:0}}]});
+    moments.setPipeline(this.moments);moments.setBindGroup(0,this.momentsGroup);moments.draw(6,count);moments.end();
+    const resolve=encoder.beginRenderPass({colorAttachments:[attachment(this.fluidDepth,1e6),attachment(this.thicknessView)]});
+    resolve.setPipeline(this.resolve);resolve.setBindGroup(0,this.resolveGroup);resolve.draw(3);resolve.end();
     for(let iteration=0;iteration<4;iteration++)for(let i=0;i<2;i++){
       const p=encoder.beginRenderPass({colorAttachments:[attachment(i?this.fluidDepth:this.tempDepth,1e6)]});p.setPipeline(this.filter);p.setBindGroup(0,this.filterGroups[i]);p.draw(6);p.end();
     }
-    const thickness=encoder.beginRenderPass({colorAttachments:[attachment(this.thicknessView)]});thickness.setPipeline(this.thickness);thickness.setBindGroup(0,this.thicknessGroup);thickness.draw(6,count);thickness.end();
     const finish=encoder.beginRenderPass({colorAttachments:[attachment(output)]});finish.setPipeline(this.water);finish.setBindGroup(0,this.waterGroup);finish.draw(3);finish.end();
   }
   destroy(){this.textures.forEach(t=>t.destroy());this.buffers.forEach(b=>b.destroy());}

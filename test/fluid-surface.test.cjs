@@ -26,3 +26,16 @@ test('half-float rounding cannot make a negative variance or nonfinite surface',
   const s=surface(),p=s.resolve([1,.5,.2499,.3],70);
   assert.ok(Number.isFinite(p.depth)&&p.depth>69&&p.depth<71);
 });
+test('an invisible foreground fringe cannot erase a visible background surface',()=>{
+  const s=surface(),front=s.anchor(59.43,.64),back=s.anchor(65.05,0);
+  assert.ok(back<front,'a visible core wins over an invisible fringe');
+  const near=s.decodeAnchor(Math.min(front,back));
+  assert.equal(s.layerWeight(60-near,.39),0);
+  assert.equal(s.layerWeight(66-near,.39),1);
+  const w=s.kernel(0),delta=66-near;
+  assert.ok(s.resolve([w,w*delta,w*delta*delta,w*.39],near));
+});
+test('fringe-only overlap still has a stable nearest anchor',()=>{
+  const s=surface(),encoded=Math.min(s.anchor(60,.36),s.anchor(60.2,.36));
+  assert.equal(s.decodeAnchor(encoded),60);
+});

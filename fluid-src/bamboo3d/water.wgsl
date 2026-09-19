@@ -40,8 +40,8 @@ fn env(d:vec3f)->vec3f {
   transmission=transmission*tinted;
   let fresnel=.0204+.9796*pow(1.-max(0.,dot(n,-ray)),5.);
   let light=normalize((camera.view*vec4f(-.4,.85,.45,0)).xyz);
-  let highlight=pow(max(0.,dot(n,normalize(light-ray))),220.);
-  var color=mix(transmission,env(reflection),clamp(fresnel,.07,.95))+highlight*vec3f(1,.98,.87)*.85;
+  let highlight=pow(max(0.,dot(n,normalize(light-ray))),120.);
+  var color=mix(transmission,env(reflection),clamp(fresnel,.025,.82))+highlight*vec3f(1,.98,.87)*.55;
   // A subtle blue-green volume tint helps the transparent interior read as liquid.
   color=mix(color,vec3f(.16,.29,.23),min(.10,thickness*.025));
   return vec4f(color,1);

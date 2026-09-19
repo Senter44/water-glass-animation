@@ -45,9 +45,15 @@ depth composition, controls, and model are custom work for this scene.
 
 ## Rendering and limitations
 
-The bamboo and stone basin write actual scene depth. The fluid depth surface is
-reconstructed from velocity-aligned overlapping ellipsoids and smoothed using
-Splash's narrow-range filter. A shallow reservoir, low inlet speed and fractional
+The bamboo and stone basin write actual scene depth. Velocity-aligned particles
+contribute additive Gaussian density and relative depth moments to one shared
+screen-space surface, rather than retaining each particle's round outline.
+A nearest-layer gate avoids merging unrelated fluid layers. Visible kernel cores
+have priority over transparent fringes, preventing a fringe from erasing deeper
+water. When only fringes overlap, they can still form a shared contour. The resolved surface
+is smoothed using Splash's narrow-range filter. Depth moments are relative to the
+nearest layer to avoid precision loss in the half-float accumulation texture.
+A shallow reservoir, low inlet speed and fractional
 fixed-step emission budget produce a gentler pour. Water shading reconstructs normals,
 refracts the scene and reflects the garden environment, with a water Fresnel term.
 Water behind bamboo is occluded; water in the mouth and falling in front is visible.
@@ -55,6 +61,10 @@ The environment is a reused generated garden photograph (see BAMBOO.md).
 This is a real-time prototype, not an offline photorealistic Cycles/FLIP render.
 The approximate collider, particle resolution and screen-space reflections place
 limits on small droplets, thin films and refracted objects outside the screen.
+Physically separated drops can remain visible at low flow; this reconstruction
+does not turn empty gaps into a simulated continuous water sheet.
+Layer selection remains approximate: a deeper core can win over a foreground
+surface composed entirely of overlapping fringes.
 
 Eight thousand particles are reused; only pool particles are recycled into the
 fixed feeder above the scoop. No particle arrays grow over time. The GPU grid is
@@ -64,12 +74,16 @@ to avoid overpacking the small inlet with particles. The GPU grid is
 The simulation uses fixed .12-unit substeps at 120 substeps per real second,
 with a capped catch-up budget. Hidden tabs stop scheduling frames; reduced motion
 starts paused. GPU resources are released on resize or page exit.
+Surface reconstruction adds one bounded RGBA16F texture (8 bytes per render pixel);
+the existing temporary depth texture is reused for its nearest-layer pass.
 
 ## Build and checks
 
 From `fluid-src`, run `npm ci` then `node build-bamboo.mjs`.
 This builds only `dist/bamboo-3d` and preserves the previous pages.
-From the project root run `node --test test/bamboo-3d.test.cjs test/shishi.test.cjs`.
+From the project root run `node --test test/bamboo-3d.test.cjs test/shishi.test.cjs test/fluid-surface.test.cjs`.
+The surface tests cover a CPU reference of the kernel and resolve math; actual
+WGSL compilation and visual output must also be checked in a WebGPU browser.
 Serve `dist` over localhost/HTTPS; WebGPU cannot be assumed on `file://`.
 `canvas#scene[data-liquid]` exposes periodic read-only GPU counts of particles
 inside the bamboo, falling, in the pool, and invalid, for verification.
