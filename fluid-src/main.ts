@@ -3,6 +3,7 @@ import { mlsmpmParticleStructSize, MLSMPMSimulator } from './mls-mpm/mls-mpm'
 import { renderUniformsViews, renderUniformsValues } from './camera'
 import { FluidRenderer } from './render/fluidRender'
 import './style.css';
+document.documentElement.classList.toggle('embed', new URLSearchParams(location.search).get('embed') === 'glass');
 let fatalError = false;
 function fail(error: unknown) {
  fatalError = true;
