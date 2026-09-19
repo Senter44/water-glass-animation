@@ -56,6 +56,19 @@ test('gentle emission remains the same across one-step and six-step frames', () 
   }
 });
 
+test('a slow inlet visits the whole pool instead of repeatedly selecting a small particle subset', () => {
+  const G=context.BambooGeometry;
+  assert.ok(G.advanceEmissionCursor, 'the emission cursor advances by the emitted batch');
+  const budget=new G.EmissionBudget(),visited=new Set();let cursor=0,total=0;
+  for(let i=0;i<2400;i++){
+    const emitted=budget.take(.104,2);
+    for(let j=0;j<emitted;j++)visited.add((cursor+j)%8000);
+    cursor=G.advanceEmissionCursor(cursor,emitted,8000);total+=emitted;
+  }
+  assert.equal(visited.size,total);
+  assert.equal(G.advanceEmissionCursor(7999,3,8000),2);
+});
+
 test('particle collision pushes liquid out of bamboo walls without blocking the opening', () => {
   assert.ok(context.BambooGeometry);
   const G = context.BambooGeometry;
