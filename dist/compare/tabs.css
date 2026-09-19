@@ -22,7 +22,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #bdffff; outline-offs
 @media (max-width: 520px) {
   .topbar { height: 54px; }
   main { padding-top: 12px; }
-  .tabs button { flex: 1; padding: 12px 8px; font-size: 14px; }
+  .tabs button { flex: 1; padding: 12px 6px; font-size: 14px; }
   .tabs button span { margin-right: 4px; font-size: 16px; }
   .scene-host { height: max(460px, calc(100svh - 218px)); }
 }

@@ -1,0 +1,34 @@
+:root { color-scheme: dark; font-family: "Segoe UI", system-ui, sans-serif; background: #0b1b17; color: #edf3e8; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 280px; }
+.experience { height: 100svh; min-height: 360px; display: grid; grid-template-rows: minmax(220px, 1fr) auto; }
+.garden { position: relative; overflow: hidden; isolation: isolate; background: #263622; }
+.garden-plate, canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.garden-plate { object-fit: cover; object-position: center bottom; user-select: none; pointer-events: none; }
+canvas { touch-action: none; }
+.instruction { position: absolute; top: clamp(18px, 4vw, 36px); left: clamp(18px, 4vw, 36px); pointer-events: none; text-shadow: 0 1px 14px #061c09; }
+.instruction p { margin: 0 0 6px; font: 500 clamp(22px, 3vw, 34px) Georgia, serif; }
+.instruction span { font-size: 14px; color: #f0f6e8; }
+#spout-handle { position: absolute; width: 48px; height: 48px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid #ffffff80; color: white; background: #18291544; box-shadow: 0 2px 14px #12251130; backdrop-filter: blur(2px); font: 27px Georgia, serif; cursor: grab; touch-action: none; }
+#spout-handle:active { cursor: grabbing; background: #18291577; }
+#spout-handle:disabled { visibility: hidden; }
+.controls { display: flex; align-items: center; gap: clamp(14px, 3vw, 36px); padding: 14px clamp(16px, 3vw, 32px); background: #101f19; border-top: 1px solid #e2ecd122; }
+.height-control { flex: 1; max-width: 430px; }
+.height-control label { font-size: 14px; }
+.range-row { display: flex; gap: 12px; align-items: center; margin-top: 2px; }
+.range-row span { font-size: 12px; color: #bccdb5; }
+input[type="range"] { min-width: 50px; width: 100%; height: 30px; margin: 0; accent-color: #c7df94; cursor: ns-resize; }
+#flow-state { margin: 0 0 0 auto; font-size: 14px; color: #cbdabb; white-space: nowrap; }
+#pause { min-width: 76px; min-height: 42px; border: 1px solid #d5e4c54d; border-radius: 6px; padding: 8px 16px; background: #243b2b; color: #f4f8eb; font: inherit; font-size: 14px; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid #eafab0; outline-offset: 4px; }
+.load-state { position: absolute; bottom: 25px; left: 20px; right: 20px; margin: 0; padding: 12px 16px; background: #102619e8; border-radius: 6px; font-size: 14px; }
+.load-state[hidden] { display: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.noscript { position: absolute; bottom: 90px; left: 20px; background: #102619; padding: 12px; }
+@media (max-width: 520px) {
+  .controls { flex-wrap: wrap; gap: 8px 16px; padding: 10px 16px; }
+  .height-control { flex-basis: 100%; max-width: none; }
+  #flow-state { margin-left: 0; }
+  #pause { margin-left: auto; min-height: 38px; }
+  .instruction p { font-size: 24px; }
+}

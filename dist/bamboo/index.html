@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bamboo — Move to pour</title>
+  <meta name="description" content="Drag a bamboo spout up and down. Lower it to pour water into a quiet garden pool, or lift it to stop the flow.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e231b'/%3E%3Cpath d='M27 8L12 13v5L27 13' fill='%238ba663'/%3E%3Cpath d='M11 21q-5 7 0 7t0-7' fill='%23d7eee2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="bamboo.css">
+  <script src="physics.js" defer></script>
+  <script src="bamboo.js" defer></script>
+</head>
+<body>
+  <main class="experience">
+    <div class="garden" id="garden">
+      <img class="garden-plate" src="assets/garden.png" alt="A quiet green garden and shallow reflective pool" draggable="false">
+      <canvas id="water" aria-hidden="true"></canvas>
+      <div class="instruction"><p>Drag the bamboo</p><span>Lower to pour. Lift to stop.</span></div>
+      <button id="spout-handle" type="button" aria-label="Bamboo spout: drag up or down, or use arrow keys" aria-describedby="keyboard-help" disabled><span aria-hidden="true">↕</span></button>
+      <p id="keyboard-help" class="sr-only">Use the up and down arrow keys to raise and lower the bamboo. Home lowers it fully; End raises it fully. You can also use the Bamboo height slider below.</p>
+      <p id="load-state" class="load-state" role="status">Preparing the garden…</p>
+    </div>
+    <div class="controls">
+      <div class="height-control"><label for="height">Bamboo height</label><div class="range-row"><span>Lower</span><input id="height" type="range" min="0" max="100" value="46" aria-valuetext="46 percent raised" disabled><span>Higher</span></div></div>
+      <p id="flow-state" role="status" aria-live="polite">Gentle flow</p>
+      <button id="pause" type="button" disabled>Pause</button>
+    </div>
+    <noscript><p class="noscript">Enable JavaScript to move the bamboo and animate the water.</p></noscript>
+  </main>
+</body>
+</html>
