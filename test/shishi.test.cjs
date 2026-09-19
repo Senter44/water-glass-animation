@@ -20,7 +20,7 @@ test('water weight tips the bamboo, draining lets it return and complete a cycle
 });
 test('equal water masses on opposite sides of the axle exert opposite torque',()=>{
   const front=create(),rear=create();for(let i=0;i<120;i++){front.step(1/120,500,3500);rear.step(1/120,500,-3500);}
-  assert.ok(front.angle>0);assert.equal(rear.angle,rear.rest);
+  assert.ok(front.angle>front.rest+.1);assert.equal(rear.angle,rear.rest);
 });
 test('zero elapsed time freezes the mechanism and reset restores its balance',()=>{
   const m=create();for(let i=0;i<100;i++)m.step(1/120,500,3500);
