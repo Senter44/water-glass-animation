@@ -121,9 +121,16 @@
   function animate(now) {
     frame = 0;
     if (!ready || paused || document.hidden) return;
-    const dt = lastTime ? Math.min((now - lastTime) / 1000, 1 / 30) : 1 / 60;
+    let remaining = lastTime ? Math.min((now - lastTime) / 1000, 0.12) : 1 / 60;
     lastTime = now;
-    model.step(dt, geometry().nozzle, flowForHeight(height), poolY);
+    // Fixed small steps keep gravity consistent on lower-refresh displays.
+    const nozzle = geometry().nozzle;
+    const flow = flowForHeight(height);
+    while (remaining > 0) {
+      const dt = Math.min(remaining, 1 / 60);
+      model.step(dt, nozzle, flow, poolY);
+      remaining -= dt;
+    }
     draw();
     frame = requestAnimationFrame(animate);
   }
