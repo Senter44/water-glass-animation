@@ -2,6 +2,7 @@
   'use strict';
   const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
   const flowForHeight = height => Math.pow(clamp((88 - height) / 88, 0, 1), 1.35);
+  const radiusForDrop = drop => clamp(drop.sourceRadius * Math.sqrt(drop.initialSpeed / drop.vy), 0.5, 4);
 
   function geometryForScene(worldWidth, poolY, height) {
     const width = clamp(worldWidth * 0.9, 350, 900);
@@ -30,37 +31,29 @@
       this.time = 0;
       this.emission = 0;
       this.lastImpact = -1;
+      this.impactInterval = 0.09;
+      this.sequence = 0;
+      this.run = 0;
+      this.lastNozzle = null;
+      this.lastFlow = 0;
+      this.nextDrip = 1;
     }
 
     step(delta, nozzle, flow, poolY) {
       const dt = clamp(delta, 0, 1 / 30);
       this.time += dt;
-      const rate = flow > 0.001 ? 7 + 160 * flow : 0;
-      this.emission += dt * rate;
-      while (this.emission >= 1 && this.drops.length < 200) {
-        this.emission -= 1;
-        // Stagger emission within a frame so the stream does not become beads
-        // synchronized to the display refresh rate.
-        const age = this.emission / rate;
-        const vx = -10 - 18 * flow + (this.random() - 0.5) * 8;
-        const vy = 35 + flow * 65;
-        this.drops.push({
-          x: nozzle.x + vx * age + (this.random() - 0.5) * 1.2,
-          y: nozzle.y + vy * age + 600 * age * age,
-          vx, vy: vy + 1200 * age, age, size: 0.85 + this.random() * 0.7,
-        });
-      }
-      if (!rate || this.drops.length >= 200) this.emission = 0;
-
+      // Advance existing water first. New samples below have only the age
+      // remaining after their precise emission time, not another full frame.
       for (let i = this.drops.length - 1; i >= 0; i--) {
         const drop = this.drops[i];
-        drop.x += drop.vx * dt;
-        drop.y += drop.vy * dt + 600 * dt * dt;
-        drop.vy += 1200 * dt;
         drop.age += dt;
+        drop.vy = drop.initialSpeed + 1200 * drop.age;
+        drop.x = drop.originX + drop.vx * drop.age;
+        drop.y = drop.originY + drop.initialSpeed * drop.age + 600 * drop.age * drop.age;
         if (drop.y >= poolY) {
-          if (this.time - this.lastImpact > 0.085) {
+          if (this.time - this.lastImpact > this.impactInterval) {
             this.lastImpact = this.time;
+            this.impactInterval = 0.08 + this.random() * 0.07;
             if (this.ripples.length < 28) this.ripples.push({ x: drop.x, y: poolY, age: 0, strength: clamp(drop.vy / 900, 0.3, 1) });
             for (let j = 0; j < 3 && this.splashes.length < 80; j++) {
               this.splashes.push({ x: drop.x, y: poolY, vx: (this.random() - 0.5) * 150, vy: -40 - this.random() * 100, age: 0, size: 0.5 + this.random() * 0.6 });
@@ -81,7 +74,36 @@
         this.ripples[i].age += dt;
         if (this.ripples[i].age > 1.8) this.ripples.splice(i, 1);
       }
+
+      const running = flow > 0.001;
+      if ((!running && this.lastFlow > 0.001) || (this.lastNozzle && Math.hypot(nozzle.x - this.lastNozzle.x, nozzle.y - this.lastNozzle.y) > 30)) this.run++;
+      this.lastNozzle = { x: nozzle.x, y: nozzle.y };
+      this.lastFlow = flow;
+      const dripping = flow < 0.18;
+      const rate = !running ? 0 : dripping ? 1 + 18 * Math.sqrt(flow) : 80 + 110 * flow;
+      this.emission += dt * rate;
+      let threshold = dripping ? this.nextDrip : 1;
+      while (this.emission >= threshold && this.drops.length < 200) {
+        this.emission -= threshold;
+        const age = Math.min(dt, this.emission / rate);
+        const bornAt = this.time - age;
+        const vx = -10 - 18 * flow + 1.6 * Math.sin(bornAt * 5.3) + 0.7 * Math.sin(bornAt * 13.1);
+        const initialSpeed = 40 + flow * 78 + 5 * Math.sin(bornAt * 9.2);
+        this.drops.push({
+          id: this.sequence++, run: this.run, bornAt, flow,
+          originX: nozzle.x, originY: nozzle.y,
+          x: nozzle.x + vx * age,
+          y: nozzle.y + initialSpeed * age + 600 * age * age,
+          vx, vy: initialSpeed + 1200 * age, initialSpeed, age,
+          sourceRadius: dripping ? 2.3 + this.random() * 0.7 : 1.4 + 2.5 * Math.sqrt(flow),
+          breakupAge: dripping ? 0 : 0.16 + 0.35 * Math.sqrt(flow) + 0.04 * Math.sin(bornAt * 7.7),
+          size: 0.85 + this.random() * 0.7,
+        });
+        this.nextDrip = 0.7 + this.random() * 0.6;
+        threshold = dripping ? this.nextDrip : 1;
+      }
+      if (!rate || this.drops.length >= 200) this.emission = 0;
     }
   }
-  globalThis.BambooPhysics = { Simulation, flowForHeight, clamp, geometryForScene };
+  globalThis.BambooPhysics = { Simulation, flowForHeight, clamp, geometryForScene, radiusForDrop };
 })();

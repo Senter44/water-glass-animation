@@ -7,10 +7,13 @@ body { margin: 0; min-width: 280px; }
 .garden-plate { object-fit: cover; object-position: center bottom; user-select: none; pointer-events: none; }
 .extra-wide .garden-plate { object-fit: fill; }
 canvas { touch-action: none; }
+#pond { pointer-events: none; }
+#pond[hidden] { display: none; }
 .instruction { position: absolute; top: clamp(18px, 4vw, 36px); left: clamp(18px, 4vw, 36px); pointer-events: none; text-shadow: 0 1px 14px #061c09; }
 .instruction p { margin: 0 0 6px; font: 500 clamp(22px, 3vw, 34px) Georgia, serif; }
 .instruction span { font-size: 14px; color: #f0f6e8; }
-#spout-handle { position: absolute; width: 48px; height: 48px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid #ffffff80; color: white; background: #18291544; box-shadow: 0 2px 14px #12251130; backdrop-filter: blur(2px); font: 27px Georgia, serif; cursor: grab; touch-action: none; }
+#spout-handle { position: absolute; width: 48px; height: 48px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid #ffffff60; color: white; background: #18291520; opacity: .24; font: 27px Georgia, serif; cursor: grab; touch-action: none; transition: opacity .2s; }
+.garden:hover #spout-handle, #spout-handle:focus-visible, #spout-handle:active { opacity: .9; }
 #spout-handle:active { cursor: grabbing; background: #18291577; }
 #spout-handle:disabled { visibility: hidden; }
 .controls { display: flex; align-items: center; gap: clamp(14px, 3vw, 36px); padding: 14px clamp(16px, 3vw, 32px); background: #101f19; border-top: 1px solid #e2ecd122; }

@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const { Simulation, flowForHeight, clamp, geometryForScene } = BambooPhysics;
+  const { Simulation, flowForHeight, clamp, geometryForScene, radiusForDrop } = BambooPhysics;
   const garden = document.getElementById('garden');
   const canvas = document.getElementById('water');
   const context = canvas.getContext('2d');
@@ -11,6 +11,12 @@
   const loadState = document.getElementById('load-state');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const bamboo = new Image();
+  const gardenImage = document.querySelector('.garden-plate');
+  const backdrop = document.createElement('canvas');
+  const backdropContext = backdrop.getContext('2d');
+  const crop = new Float32Array(4);
+  const pondBounds = new Float32Array(2);
+  let surface = null;
   const model = new Simulation();
   let height = Number(heightInput.value);
   let worldWidth = 1000;
@@ -48,6 +54,7 @@
 
   function resize() {
     const rect = garden.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
     scale = rect.height / 640;
     worldWidth = rect.width / scale;
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -59,6 +66,14 @@
     const extraWide = worldWidth / 640 > 3;
     garden.classList.toggle('extra-wide', extraWide);
     poolY = extraWide ? 512 : 640 - 0.20 * 1024 * backgroundScale;
+    crop.set(extraWide ? [0, 0, worldWidth, 640] : [(worldWidth - 1536 * backgroundScale) / 2, 640 - 1024 * backgroundScale, 1536 * backgroundScale, 1024 * backgroundScale]);
+    pondBounds.set([crop[1] + crop[3] * 0.666, crop[1] + crop[3] * 0.885]);
+    if (ready) {
+      backdrop.width = canvas.width;
+      backdrop.height = canvas.height;
+      backdropContext.setTransform(pixelRatio * scale, 0, 0, pixelRatio * scale, 0, 0);
+      backdropContext.drawImage(gardenImage, crop[0], crop[1], crop[2], crop[3]);
+    }
     model.reset();
     updateControls();
     if (ready) draw();
@@ -83,37 +98,117 @@
 
   function drawDrops() {
     context.lineCap = 'round';
-    for (const drop of model.drops) {
-      const trail = Math.min(14, drop.vy * 0.011);
+    let chain = [];
+    function flush() {
+      if (chain.length > 1) drawRibbon(chain);
+      else if (chain.length) drawBead(chain[0]);
+      chain = [];
+    }
+    for (let i = 0; i < model.drops.length; i++) {
+      const drop = model.drops[i];
+      const cohesive = drop.flow >= 0.18 && drop.age < drop.breakupAge;
+      if (!cohesive) { flush(); drawBead(drop); continue; }
+      const previous = chain[chain.length - 1];
+      if (previous && (previous.run !== drop.run || previous.id + 1 !== drop.id || Math.hypot(previous.x - drop.x, previous.y - drop.y) > 18)) flush();
+      chain.push(drop);
+    }
+    const youngest = chain[chain.length - 1];
+    const nozzle = geometry().nozzle;
+    if (youngest && model.lastFlow >= 0.18 && youngest.run === model.run && Math.hypot(youngest.x - nozzle.x, youngest.y - nozzle.y) < 8) {
+      chain.push({ ...youngest, x: nozzle.x, y: nozzle.y, age: 0, vy: youngest.initialSpeed });
+    }
+    flush();
+    for (const splash of model.splashes) {
+      context.globalAlpha = Math.max(0, 1 - splash.age / 0.55);
+      drawBead({ ...splash, sourceRadius: splash.size, initialSpeed: 60, vy: Math.max(60, Math.abs(splash.vy)) });
+    }
+    context.globalAlpha = 1;
+  }
+
+  function drawRibbon(drops) {
+    const samples = drops.map(drop => ({
+      x: drop.x + Math.sin(drop.bornAt * 26 + drop.age * 5) * Math.min(0.65, drop.age * 2),
+      y: drop.y,
+      r: radiusForDrop(drop) * (1 + 0.10 * Math.sin(drop.bornAt * 47)),
+    }));
+    const path = new Path2D();
+    path.moveTo(samples[0].x - samples[0].r, samples[0].y);
+    samples.slice(1).forEach(p => path.lineTo(p.x - p.r, p.y));
+    samples.slice().reverse().forEach(p => path.lineTo(p.x + p.r, p.y));
+    path.closePath();
+    context.save();
+    context.clip(path);
+    // The transparent core refracts the actual scene instead of painting a
+    // solid white/blue hose. The small offset varies with the moving surface.
+    const shift = 4 + 2 * Math.sin(model.time * 4.1);
+    context.drawImage(backdrop, 0, 0, backdrop.width, backdrop.height, -shift, -1, worldWidth, 642);
+    context.fillStyle = 'rgba(163,194,176,0.22)';
+    context.fill(path);
+    context.restore();
+    for (const side of [-1, 1]) {
       context.beginPath();
-      context.moveTo(drop.x, drop.y - trail);
-      context.lineTo(drop.x, drop.y);
-      context.strokeStyle = 'rgba(29,54,40,0.52)';
-      context.lineWidth = drop.size * 2.8;
-      context.stroke();
-      context.beginPath();
-      context.moveTo(drop.x - 0.4, drop.y - trail);
-      context.lineTo(drop.x - 0.4, drop.y);
-      context.strokeStyle = 'rgba(236,249,235,0.76)';
-      context.lineWidth = drop.size * 0.9;
+      samples.forEach((p, i) => {
+        const x = p.x + side * p.r * 0.8;
+        if (i === 0) context.moveTo(x, p.y); else context.lineTo(x, p.y);
+      });
+      context.lineWidth = side < 0 ? 0.95 : 0.7;
+      context.strokeStyle = side < 0 ? 'rgba(19,39,27,0.68)' : 'rgba(247,255,245,0.85)';
       context.stroke();
     }
-    for (const splash of model.splashes) {
+    // Broken glints slide down the column; no uniformly bright center stripe.
+    for (let i = 1; i < samples.length; i++) {
+      if (Math.sin(drops[i].bornAt * 48) < 0.35) continue;
       context.beginPath();
-      context.ellipse(splash.x, splash.y, splash.size, splash.size * 1.6, 0, 0, Math.PI * 2);
-      context.fillStyle = `rgba(240,250,223,${0.65 * (1 - splash.age / 0.55)})`;
-      context.fill();
+      context.moveTo(samples[i - 1].x - samples[i - 1].r * .3, samples[i - 1].y);
+      context.lineTo(samples[i].x - samples[i].r * .3, samples[i].y);
+      context.strokeStyle = 'rgba(248,255,241,0.65)';
+      context.lineWidth = 0.7;
+      context.stroke();
+    }
+  }
+
+  function drawBead(drop) {
+    const radius = radiusForDrop(drop) * (drop.size || 1);
+    const stretch = 1 + Math.min(0.65, Math.abs(drop.vy) / 900);
+    context.save();
+    context.translate(drop.x, drop.y);
+    context.scale(radius, radius * stretch);
+    const shine = context.createRadialGradient(-0.3, -0.4, 0.05, 0, 0, 1);
+    shine.addColorStop(0, 'rgba(254,255,242,.93)');
+    shine.addColorStop(.28, 'rgba(218,237,220,.48)');
+    shine.addColorStop(.60, 'rgba(88,130,101,.16)');
+    shine.addColorStop(.87, 'rgba(10,37,25,.76)');
+    shine.addColorStop(1, 'rgba(230,249,230,.65)');
+    context.beginPath();
+    context.arc(0, 0, 1, 0, Math.PI * 2);
+    context.fillStyle = shine;
+    context.fill();
+    context.restore();
+  }
+
+  function drawImpacts() {
+    for (const ripple of model.ripples) {
+      if (ripple.age > .28) continue;
+      const fade = 1 - ripple.age / .28;
+      context.beginPath();
+      context.ellipse(ripple.x, ripple.y, 3 + ripple.age * 17, 1.1 + ripple.age * 4, 0, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(228,245,208,${fade * .45})`;
+      context.lineWidth = 0.8;
+      context.stroke();
     }
   }
 
   function draw() {
     context.clearRect(0, 0, worldWidth, 640);
-    drawRipples();
+    const refracting = surface?.render(worldWidth, crop, pondBounds, model);
+    if (!refracting) drawRipples();
+    drawImpacts();
     drawDrops();
     const g = geometry();
     context.save();
     context.translate(g.pivot.x, g.pivot.y);
     context.rotate(g.angle);
+    context.filter = 'saturate(0.9) brightness(0.96)';
     context.drawImage(bamboo, -g.width * 0.88, -g.width * 2 / 3 * 0.54, g.width, g.width * 2 / 3);
     context.restore();
   }
@@ -197,6 +292,7 @@
   document.addEventListener('visibilitychange', syncPlayback);
   reducedMotion.addEventListener('change', event => { paused = event.matches; syncPlayback(); });
   window.addEventListener('pagehide', () => { cancelAnimationFrame(frame); model.reset(); });
+  window.addEventListener('pageshow', syncPlayback);
 
   function fail() {
     ready = false;
@@ -206,18 +302,21 @@
     loadState.textContent = 'The garden images could not load. Please reload this page to try again.';
   }
 
-  if (!context) { fail(); return; }
-  const gardenImage = document.querySelector('.garden-plate');
+  if (!context || !backdropContext) { fail(); return; }
   gardenImage.addEventListener('error', fail);
   bamboo.onerror = fail;
-  bamboo.onload = () => {
-    if (gardenImage.complete && !gardenImage.naturalWidth) { fail(); return; }
+  function startWhenLoaded() {
+    if (ready || !bamboo.complete || !gardenImage.complete) return;
+    if (!bamboo.naturalWidth || !gardenImage.naturalWidth) { fail(); return; }
     ready = true;
+    surface = new PondSurface(document.getElementById('pond'), gardenImage);
     loadState.hidden = true;
     handle.disabled = heightInput.disabled = pauseButton.disabled = false;
     resize();
     syncPlayback();
-  };
+  }
+  bamboo.onload = startWhenLoaded;
+  gardenImage.addEventListener('load', startWhenLoaded);
   new ResizeObserver(resize).observe(garden);
   bamboo.src = 'assets/bamboo.png';
 })();
