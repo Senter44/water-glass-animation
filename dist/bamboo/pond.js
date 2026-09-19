@@ -95,7 +95,7 @@
       if (!this.active) return false;
       const gl = this.gl;
       const width = Math.min(1100, Math.round(this.canvas.clientWidth));
-      const height = Math.max(1, Math.round(width * 640 / worldWidth));
+      const height = Math.max(1, Math.min(900, Math.round(width * 640 / worldWidth)));
       if (this.canvas.width !== width || this.canvas.height !== height) {
         this.canvas.width = width;
         this.canvas.height = height;

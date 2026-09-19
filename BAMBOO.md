@@ -6,14 +6,23 @@ Drag the bamboo or circular handle up/down. Lower it to pour, raise it to slow
 the flow, and raise it above 88% to stop. The height slider and arrow keys work
 too; Home lowers fully and End raises fully. Pause freezes motion.
 
-The page is static HTML/CSS/JavaScript with no runtime dependencies or backend.
+The page is static HTML/CSS/JavaScript with no third-party runtime dependencies or backend.
 The bamboo moves independently over the garden photograph. The water is drawn
 and simulated in Canvas, with gravity, moving emission points, impact splashes
-and expanding ripples. This is a lightweight 2D interaction, not a 3D fluid
+and expanding ripples. Dense flow forms a transparent, refractive ribbon that
+narrows as gravity accelerates it, then breaks into droplets. Low flow produces
+separate drips. Newborn samples use their precise emission age, so the jet does
+not jump away from the lip at lower refresh rates.
+
+A small WebGL optical layer displaces the existing pond reflections using the
+eight latest impact waves, with subtle ambient surface motion. It falls back
+to the Canvas ripple rendering when WebGL is unavailable. This is a lightweight
+2D interaction with water-surface shading, not a 3D fluid
 solver or a baked video. The existing Splash/WebGPU tab is unchanged.
 
 Buffers are bounded at 200 falling drops, 80 splash particles, and 28 ripples;
-pixel ratio is capped at 1.5. Only the selected tab is mounted. Hidden documents
+pixel ratio is capped at 1.5. The pond layer is capped at 1100 × 900 pixels,
+with one photo texture and eight wave sources. Only the selected tab is mounted. Hidden documents
 stop scheduling animation frames, and reduced-motion users start paused.
 
 ## Asset provenance

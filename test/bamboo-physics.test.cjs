@@ -82,3 +82,24 @@ test('stream parcels carry stable identity and narrow as gravity accelerates the
   assert.ok(radiusForDrop(drop) < startRadius);
   assert.equal(new Set(model.drops.map(item => item.id)).size, model.drops.length);
 });
+
+test('30 Hz and 120 Hz give the same ballistic position for the same parcel', () => {
+  const positions = [30, 120].map(rate => {
+    const model = new sandbox.BambooPhysics.Simulation(() => 0.5);
+    for (let i = 0; i < rate / 2; i++) model.step(1 / rate, { x: 400, y: 100 }, 1, 600);
+    return model.drops.find(drop => drop.id === 10);
+  });
+  assert.ok(Math.abs(positions[0].x - positions[1].x) < 0.01);
+  assert.ok(Math.abs(positions[0].y - positions[1].y) < 0.01);
+});
+
+test('a trickle emits separate drops and a restart starts a new stream run', () => {
+  const model = new sandbox.BambooPhysics.Simulation(() => 0.5);
+  for (let i = 0; i < 30; i++) model.step(1 / 60, { x: 400, y: 100 }, .04, 600);
+  assert.ok(model.drops.length > 0 && model.drops.length < 5);
+  assert.ok(model.drops.every(drop => drop.breakupAge === 0));
+  const initialRun = model.run;
+  model.step(1 / 60, { x: 400, y: 100 }, 0, 600);
+  model.step(1 / 60, { x: 400, y: 100 }, 1, 600);
+  assert.ok(model.drops.some(drop => drop.run > initialRun));
+});

@@ -118,6 +118,12 @@
       chain.push({ ...youngest, x: nozzle.x, y: nozzle.y, age: 0, vy: youngest.initialSpeed });
     }
     flush();
+    if (model.lastFlow > 0.001 && model.lastFlow < 0.18) {
+      // A drip grows at the wet lip before detaching under gravity.
+      const progress = clamp(model.emission / model.nextDrip, 0, 1);
+      const radius = .4 + 2.3 * Math.cbrt(progress);
+      drawBead({ x: nozzle.x, y: nozzle.y + radius * .45, sourceRadius: radius, initialSpeed: 1, vy: 1, size: 1 });
+    }
     for (const splash of model.splashes) {
       context.globalAlpha = Math.max(0, 1 - splash.age / 0.55);
       drawBead({ ...splash, sourceRadius: splash.size, initialSpeed: 60, vy: Math.max(60, Math.abs(splash.vy)) });
