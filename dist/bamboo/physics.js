@@ -3,6 +3,18 @@
   const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
   const flowForHeight = height => Math.pow(clamp((88 - height) / 88, 0, 1), 1.35);
 
+  function geometryForScene(worldWidth, poolY, height) {
+    const width = clamp(worldWidth * 0.9, 350, 900);
+    const pivot = { x: Math.max(worldWidth * 0.5 + width * 0.802, worldWidth + width * 0.1), y: 115 };
+    const localX = (120 / 1536 - 0.88) * width;
+    const localY = (722 / 1024 - 0.54) * width * 2 / 3;
+    const travel = Math.min(440, poolY - 80) - 70;
+    const targetY = 70 + travel * (1 - clamp(height, 0, 100) / 100);
+    const angle = Math.atan2(localY, -localX) - Math.asin(clamp((targetY - pivot.y) / Math.hypot(localX, localY), -1, 1));
+    const c = Math.cos(angle), s = Math.sin(angle);
+    return { width, angle, pivot, travel, nozzle: { x: pivot.x + localX * c - localY * s, y: pivot.y + localX * s + localY * c } };
+  }
+
   class Simulation {
     constructor(random = Math.random) {
       this.random = random;
@@ -69,5 +81,5 @@
       }
     }
   }
-  globalThis.BambooPhysics = { Simulation, flowForHeight, clamp };
+  globalThis.BambooPhysics = { Simulation, flowForHeight, clamp, geometryForScene };
 })();

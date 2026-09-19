@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const { Simulation, flowForHeight, clamp } = BambooPhysics;
+  const { Simulation, flowForHeight, clamp, geometryForScene } = BambooPhysics;
   const garden = document.getElementById('garden');
   const canvas = document.getElementById('water');
   const context = canvas.getContext('2d');
@@ -25,13 +25,7 @@
   // All geometry and particles share one coordinate system. The source is the
   // measured low lip of the transparent sprite, not a fixed screen position.
   function geometry() {
-    const width = clamp(worldWidth * 0.9, 350, 900);
-    const angle = -0.33 + height * 0.0056;
-    const pivot = { x: worldWidth * 0.5 + width * 0.802, y: 115 };
-    const localX = (120 / 1536 - 0.88) * width;
-    const localY = (722 / 1024 - 0.54) * width * 2 / 3;
-    const c = Math.cos(angle), s = Math.sin(angle);
-    return { width, angle, pivot, nozzle: { x: pivot.x + localX * c - localY * s, y: pivot.y + localX * s + localY * c } };
+    return geometryForScene(worldWidth, poolY, height);
   }
 
   function updateControls() {
@@ -62,7 +56,9 @@
     context.setTransform(pixelRatio * scale, 0, 0, pixelRatio * scale, 0, 0);
     // Background is cover/bottom; track the actual pond plane after cropping.
     const backgroundScale = Math.max(worldWidth / 1536, 640 / 1024);
-    poolY = 640 - 0.20 * 1024 * backgroundScale;
+    const extraWide = worldWidth / 640 > 3;
+    garden.classList.toggle('extra-wide', extraWide);
+    poolY = extraWide ? 512 : 640 - 0.20 * 1024 * backgroundScale;
     model.reset();
     updateControls();
     if (ready) draw();
@@ -164,7 +160,7 @@
 
   function moveDrag(event) {
     if (drag && event.pointerId === drag.pointer) {
-      const travel = geometry().width * 0.802 * 0.56;
+      const travel = geometry().travel;
       setHeight(drag.startHeight - (point(event).y - drag.startY) / travel * 100);
     } else if (event.currentTarget === canvas) canvas.style.cursor = hitsBamboo(point(event)) ? 'grab' : 'default';
   }

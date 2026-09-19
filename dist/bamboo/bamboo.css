@@ -5,6 +5,7 @@ body { margin: 0; min-width: 280px; }
 .garden { position: relative; overflow: hidden; isolation: isolate; background: #263622; }
 .garden-plate, canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .garden-plate { object-fit: cover; object-position: center bottom; user-select: none; pointer-events: none; }
+.extra-wide .garden-plate { object-fit: fill; }
 canvas { touch-action: none; }
 .instruction { position: absolute; top: clamp(18px, 4vw, 36px); left: clamp(18px, 4vw, 36px); pointer-events: none; text-shadow: 0 1px 14px #061c09; }
 .instruction p { margin: 0 0 6px; font: 500 clamp(22px, 3vw, 34px) Georgia, serif; }
