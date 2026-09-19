@@ -5,8 +5,8 @@
 <title>Fluid Lab — Interactive 3D test</title>
 <meta name="description" content="Test real-time 3D water physics inside a cylindrical glass.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1c29'/%3E%3Cpath d='M5 18q5-8 11 0t11 0v8H5z' fill='%236de0ea'/%3E%3C/svg%3E">
-  <script type="module" crossorigin src="/fluid/assets/index-DZLNnSTa.js"></script>
-  <link rel="stylesheet" crossorigin href="/fluid/assets/index-h-MbJQBi.css">
+  <script type="module" crossorigin src="/fluid/assets/index-Bpw1hHGX.js"></script>
+  <link rel="stylesheet" crossorigin href="/fluid/assets/index-B0bXvPZy.css">
 </head>
 <body>
 <header class="topbar"><div><span class="brand">FLUID LAB</span><span class="badge">PROTOTYPE 01</span></div><a href="/">Photo study ↗</a></header>
@@ -34,6 +34,7 @@
 </aside>
 <section class="viewport" aria-label="Interactive water simulation">
 <canvas id="fluidCanvas" aria-label="3D fluid. Drag to rotate or stir; scroll to zoom." tabindex="0"></canvas>
+<div class="embed-toolbar" role="group" aria-label="Glass interaction"><button type="button" data-interaction="stir" aria-pressed="true">Stir water</button><button type="button" data-interaction="rotate" aria-pressed="false">Rotate view</button><button type="button" id="embed-pause" aria-pressed="false">Pause</button></div>
 <div id="loading" class="message" role="status"><span class="loader"></span><h2>Preparing the water</h2><p id="error-reason">Checking your graphics device and loading the fluid simulation.</p><button type="button" id="retry" hidden>Try again</button></div>
 <span class="view-label">CYLINDRICAL GLASS <span>MLS-MPM · WebGPU</span></span>
 </section>

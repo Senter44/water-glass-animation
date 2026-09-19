@@ -101,7 +101,7 @@ fn updateGrid(@builtin(global_invocation_id) id: vec3<u32>) {
             let radial = vec2f(f32(x), f32(z)) - cylinderCenter;
             let radialDistance = length(radial);
             let cylinderRadius = min(realBoxSize.x, realBoxSize.z) * 0.5 - 3.0;
-            if (radialDistance > cylinderRadius - 1.5 && radialDistance > 0.0) {
+            if (radialDistance > cylinderRadius - 0.3 && radialDistance > 0.0) {
                 let normal = radial / radialDistance;
                 let outwardSpeed = dot(floatV.xz, normal);
                 if (outwardSpeed > 0.0) {

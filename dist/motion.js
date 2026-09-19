@@ -1,4 +1,9 @@
+document.documentElement.classList.toggle('embed-study', new URLSearchParams(location.search).get('embed') === 'study');
+
 const scene = document.querySelector('#water-scene');
+if (document.documentElement.classList.contains('embed-study')) {
+  scene.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+}
 const button = document.querySelector('#motion');
 const label = document.querySelector('#motion-label');
 const icon = document.querySelector('#motion-icon');

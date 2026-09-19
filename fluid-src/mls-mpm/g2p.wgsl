@@ -73,7 +73,7 @@ fn g2p(@builtin(global_invocation_id) id: vec3<u32>) {
         particles[id.x].position += particles[id.x].v * dt;
         particles[id.x].position = vec3f(
             clamp(particles[id.x].position.x, 1., realBoxSize.x - 2.), 
-            clamp(particles[id.x].position.y, 1., realBoxSize.y - 2.), 
+            clamp(particles[id.x].position.y, 3., realBoxSize.y - 4.),
             clamp(particles[id.x].position.z, 1., realBoxSize.z - 2.)
         );
 
@@ -97,9 +97,9 @@ fn g2p(@builtin(global_invocation_id) id: vec3<u32>) {
         let predicted = particles[id.x].position.xz + particles[id.x].v.xz * dt * 2.0;
         radial = predicted - center;
         radialDistance = length(radial);
-        if (radialDistance > cylinderRadius - 0.8 && radialDistance > 0.0) {
+        if (radialDistance > cylinderRadius - 0.2 && radialDistance > 0.0) {
             let normal = radial / radialDistance;
-            let penetration = max(0.0, radialDistance - (cylinderRadius - 0.8));
+            let penetration = max(0.0, radialDistance - (cylinderRadius - 0.2));
             particles[id.x].v.x -= normal.x * penetration;
             particles[id.x].v.z -= normal.y * penetration;
         }

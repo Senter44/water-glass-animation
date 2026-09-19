@@ -1,6 +1,5 @@
-@group(0) @binding(0) var envmapTexture: texture_cube<f32>;
 @group(0) @binding(1) var<uniform> uniforms: RenderUniforms;
-@group(0) @binding(2) var textureSampler: sampler;
+@group(0) @binding(3) var<uniform> box: vec3f;
 
 struct RenderUniforms {
     texelSize: vec2f, 
@@ -47,6 +46,17 @@ fn fs(input: FragmentInput) -> @location(0) vec4f {
     let lower = vec3f(0.12, 0.22, 0.28);
     let upper = vec3f(0.48, 0.64, 0.70);
     let studio = mix(lower, upper, vertical) + horizonGlow * vec3f(0.08, 0.13, 0.15);
-    let environment = textureSampleLevel(envmapTexture, textureSampler, rayDirWorld, 0.0).rgb;
-    return vec4f(mix(studio, environment, 0.06), 1.0);
+    let camera = getCameraPosition();
+    if (rayDirWorld.y < -0.00001) {
+        let t = (0.8 - camera.y) / rayDirWorld.y;
+        if (t > 0.0) {
+            let point = camera + t * rayDirWorld;
+            let radius = min(box.x, box.z) * 0.5 - 2.5;
+            let radialDistance = length(point.xz - box.xz * 0.5);
+            let shadow = exp(-pow(radialDistance / (radius * 1.2), 4.0));
+            let floor = vec3f(0.37, 0.52, 0.60) * (1.0 - 0.35 * shadow);
+            return vec4f(mix(studio, floor, exp(-t * 0.002)), 1.0);
+        }
+    }
+    return vec4f(studio, 1.0);
 }

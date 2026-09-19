@@ -89,7 +89,7 @@ export class Camera {
         this.currentHoverX = this.prevHoverX = 0;
         this.currentHoverY = this.prevHoverY = 0;
         this.currentXtheta = -Math.PI / 2 * 1
-        this.currentYtheta = -Math.PI / 12 * 0.8
+        this.currentYtheta = -Math.PI / 8
         // this.currentYtheta = 0
         this.maxYTheta = -Math.PI / 12. * 0.8
         this.minYTheta = -0.99 * Math.PI / 2.

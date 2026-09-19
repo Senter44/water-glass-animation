@@ -7,6 +7,7 @@ import depthMap from './depthMap.wgsl'
 import sphere from './sphere.wgsl'
 import bgColor from './bgColor.wgsl'
 import densityRaymarch from './densityRaymarch.wgsl'
+import glass from './glass.wgsl'
 
 
 export class FluidRenderer {
@@ -19,6 +20,9 @@ export class FluidRenderer {
     spherePipeline: GPURenderPipeline
     bgColorPipeline: GPURenderPipeline
     densityRaymarchPipeline: GPURenderPipeline
+    glassPipeline: GPURenderPipeline
+    glassBindGroup: GPUBindGroup
+    sceneColorTextureView: GPUTextureView
 
     depthMapTextureView: GPUTextureView
     tmpDepthMapTextureView: GPUTextureView
@@ -86,6 +90,14 @@ export class FluidRenderer {
         const thicknessFilterModule = device.createShaderModule({ code: gaussian })
         const bgColorModule = device.createShaderModule({ code: bgColor })
         const densityRaymarchModule = device.createShaderModule({ code: densityRaymarch })
+        const glassModule = device.createShaderModule({ label: 'world-space glass', code: glass })
+        this.glassPipeline = device.createRenderPipeline({
+            label: 'world-space glass composite',
+            layout: 'auto',
+            vertex: { module: vertexModule, constants: screenConstants },
+            fragment: { module: glassModule, targets: [{ format: presentationFormat }] },
+            primitive: { topology: 'triangle-list' },
+        })
 
         // pipelines
         this.depthMapPipeline = device.createRenderPipeline({
@@ -312,6 +324,23 @@ export class FluidRenderer {
         this.tmpThicknessTextureView = tmpThicknessTexture.createView()
         this.depthTestTextureView = depthTestTexture.createView()
         this.tmpOutputTextureView = tmpOutputTexture.createView()
+        this.sceneColorTextureView = device.createTexture({
+            label: 'water scene before glass',
+            size: [canvas.width, canvas.height, 1],
+            format: presentationFormat,
+            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
+        }).createView()
+        this.glassBindGroup = device.createBindGroup({
+            label: 'world-space glass resources',
+            layout: this.glassPipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: sampler },
+                { binding: 1, resource: this.sceneColorTextureView },
+                { binding: 2, resource: this.depthMapTextureView },
+                { binding: 3, resource: { buffer: renderUniformBuffer } },
+                { binding: 4, resource: { buffer: initBoxSizeBuffer } },
+            ],
+        })
 
         // buffer
         const filterXUniformBuffer = device.createBuffer({
@@ -449,9 +478,8 @@ export class FluidRenderer {
             label: 'bgColor bind group', 
             layout: this.bgColorPipeline.getBindGroupLayout(0),  
             entries: [
-                { binding: 0, resource: cubemapTextureView },
                 { binding: 1, resource: { buffer: renderUniformBuffer }},
-                { binding: 2, resource: sampler }, 
+                { binding: 3, resource: { buffer: initBoxSizeBuffer }},
             ]
         })
 
@@ -562,7 +590,7 @@ export class FluidRenderer {
         const fluidPassDescriptor: GPURenderPassDescriptor = {
             colorAttachments: [
                 {
-                    view: context.getCurrentTexture().createView(),
+                    view: this.sceneColorTextureView,
                     clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
                     loadOp: 'clear',
                     storeOp: 'store',
@@ -612,7 +640,7 @@ export class FluidRenderer {
         const densityRaymarchPassDescriptor: GPURenderPassDescriptor = {
             colorAttachments: [
                 { 
-                    view: context.getCurrentTexture().createView(),
+                    view: this.sceneColorTextureView,
                     clearValue: { r: 0.7, g: 0.7, b: 0.75, a: 1.0 },
                     loadOp: 'clear',
                     storeOp: 'store',
@@ -697,5 +725,17 @@ export class FluidRenderer {
             densityRaymarchPassEncoder.draw(6)
             densityRaymarchPassEncoder.end()
         }
+        const glassPass = commandEncoder.beginRenderPass({
+            colorAttachments: [{
+                view: context.getCurrentTexture().createView(),
+                clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                loadOp: 'clear',
+                storeOp: 'store',
+            }],
+        })
+        glassPass.setPipeline(this.glassPipeline)
+        glassPass.setBindGroup(0, this.glassBindGroup)
+        glassPass.draw(6)
+        glassPass.end()
     }
 }

@@ -3,60 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Compare the earlier Pour photo study with an interactive Splash WebGPU fluid simulation.">
-  <title>Water in Glass — Image vs Physics</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23081420'/%3E%3Cpath d='M7 7h18l-2 19H9L7 7z' fill='none' stroke='%2394e7f1' stroke-width='2'/%3E%3Cpath d='M9 16q7-3 14 0l-1 9H10z' fill='%234bb9dd'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="compare.css">
-  <link rel="stylesheet" href="cylinder.css">
+  <meta name="description" content="The original Pour water animation and an interactive Splash water simulation in two separate tabs.">
+  <title>Pour — Water studies</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23081420'/%3E%3Cpath d='M7 7h18l-2 19H9L7 7z' fill='none' stroke='%2394e7f1' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="tabs.css">
   <script src="compare.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/">POUR / LAB</a>
-    <p>One subject. Two ways to make it.</p>
-    <nav aria-label="Water studies"><a href="/">Photo study</a><a href="/fluid/">Fluid lab</a></nav>
-  </header>
-
+  <header class="topbar"><a class="brand" href="../">POUR / LAB</a><span>Water studies</span></header>
   <main>
-    <section class="intro" aria-labelledby="page-title">
-      <p class="eyebrow">COMPARISON 01</p>
-      <h1 id="page-title">Image <i>vs.</i> physics</h1>
-      <p>Compare the earlier photo-based Pour study with real-time behavior. Move across the live glass to disturb the simulated water.</p>
+    <div class="tabs" role="tablist" aria-label="Water studies">
+      <button id="pour-tab" type="button" role="tab" aria-selected="true" aria-controls="pour-panel" tabindex="0"><span>01</span> Pour water</button>
+      <button id="physics-tab" type="button" role="tab" aria-selected="false" aria-controls="physics-panel" tabindex="-1"><span>02</span> Interactive physics</button>
+    </div>
+    <section id="pour-panel" class="panel" role="tabpanel" aria-labelledby="pour-tab">
+      <header class="panel-heading"><h1>Pour water</h1><a href="../">Open original ↗</a></header>
+      <div class="scene-host" id="pour-host"><iframe id="pour-frame" title="Original Pour water animation with Play and Pause controls" src="../?embed=study"></iframe></div>
     </section>
-
-    <section class="comparison" aria-label="Side-by-side water comparison">
-      <article class="panel generated">
-        <header><span class="index">01</span><div><p>PREVIOUS STUDY</p><h2>Animated photograph</h2></div><span class="mode">PHOTO</span></header>
-        <figure class="image-frame">
-          <img src="../water-reference.png" alt="The earlier Pour study showing water flowing into a clear glass">
-          <figcaption>The earlier version uses the original photograph with subtle animated refraction.</figcaption>
-        </figure>
-      </article>
-
-      <div class="versus" aria-hidden="true">VS</div>
-
-      <article class="panel physical">
-        <header><span class="index">02</span><div><p>SPLASH / WEBGPU</p><h2>Interactive physics</h2></div><span class="mode live">LIVE</span></header>
-        <div class="physics-stage">
-          <div class="glass" aria-label="Interactive Splash water simulation using a cylindrical glass boundary">
-            <iframe id="fluid-frame" title="Interactive Splash water simulation" src="../fluid/?embed=glass" loading="eager"></iframe>
-            <span class="glass-rim" aria-hidden="true"></span>
-            <span class="glass-shine" aria-hidden="true"></span>
-            <span class="glass-base" aria-hidden="true"></span>
-          </div>
-          <div class="physics-note"><span>Move pointer · disturb</span><span>Drag · rotate</span></div>
-        </div>
-        <button id="reset-physics" type="button">Reset simulation</button>
-      </article>
+    <section id="physics-panel" class="panel" role="tabpanel" aria-labelledby="physics-tab" hidden>
+      <header class="panel-heading"><div><p>SPLASH / WEBGPU</p><h1>Interactive physics</h1></div><button id="reset-physics" type="button">Reset water</button></header>
+      <div class="scene-host" id="physics-host"></div>
     </section>
-
-    <section class="findings" aria-label="Comparison summary">
-      <div><span>REALISM</span><strong>Previous Pour study</strong><p>Best glass optics, surface detail and photographic realism.</p></div>
-      <div><span>MOTION</span><strong>Splash physics</strong><p>Particles react continuously inside a true cylindrical boundary.</p></div>
-      <div><span>LIMIT</span><strong>Different strengths</strong><p>The photograph only simulates subtle motion; Splash reacts but is not yet photorealistic.</p></div>
-    </section>
+    <noscript><p><a href="../">Open Pour water</a> · <a href="../fluid/">Open interactive physics</a>. Enable JavaScript to switch tabs and run the animations.</p></noscript>
   </main>
-
-  <footer><span>Previous Pour photo study</span><span>Splash by matsuoka-601 · MIT</span></footer>
 </body>
 </html>

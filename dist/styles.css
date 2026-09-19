@@ -31,3 +31,11 @@ h1 { font: italic 600 clamp(4rem, 7vw, 6.5rem)/1 Georgia, serif; letter-spacing:
 @media (prefers-reduced-motion: reduce) { .control__drop { transition: none; } }
 .compare-link { margin: 18px 0 0; font: 600 13px/1.4 Inter, "Segoe UI", sans-serif; letter-spacing: .02em; }
 .compare-link a { color: #c9ecf7; text-underline-offset: 5px; }
+
+/* Share the original animated scene with the comparison, including its controls. */
+.embed-study .stage { height: 100svh; min-height: 0; display: block; padding: 0; overflow: hidden; }
+.embed-study .caption { display: none; }
+.embed-study .scene { width: 100%; height: 100%; max-width: none; aspect-ratio: auto; box-shadow: none; background: #0b1c28; }
+.embed-study .control { position: absolute; right: 16px; bottom: 16px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 14px 8px 8px; border: 1px solid #b3e0ef66; border-radius: 999px; background: #06121be8; }
+.embed-study .control__drop { width: 36px; height: 36px; }
+.embed-study .control__label { min-width: 3.5em; font-size: 14px; }

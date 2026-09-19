@@ -51,7 +51,7 @@ async function init() {
 		throw new Error()	
 	}
 
-	const devicePixelRatio = Math.min(0.7, 1000 / Math.max(canvas.clientWidth, canvas.clientHeight));
+	const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 1.1, 1200 / Math.max(canvas.clientWidth, canvas.clientHeight));
 	canvas.width = Math.max(2, Math.floor(devicePixelRatio * canvas.clientWidth / 2) * 2)
 	canvas.height = Math.max(2, Math.floor(devicePixelRatio * canvas.clientHeight / 2) * 2)
 
@@ -68,11 +68,25 @@ async function init() {
 }
 
 function initGui(particleCountTexts: string[]) {
- const params = { running: !matchMedia('(prefers-reduced-motion: reduce)').matches, r:176, g:232, b:245, speed:0.8, colorDensity:0.035, numParticles:particleCountTexts[0], resetRequested:false };
+ const params = { running: !matchMedia('(prefers-reduced-motion: reduce)').matches, r:205, g:239, b:249, speed:0.8, colorDensity:0.01, numParticles:particleCountTexts[0], resetRequested:false };
  const pause = document.getElementById('pause') as HTMLButtonElement;
- const update = () => { pause.textContent = params.running ? 'Pause' : 'Resume'; pause.setAttribute('aria-pressed', String(!params.running)); };
+ const embedPause = document.getElementById('embed-pause') as HTMLButtonElement;
+ const update = () => {
+   for (const control of [pause, embedPause]) {
+     control.textContent = params.running ? 'Pause' : 'Resume';
+     control.setAttribute('aria-pressed', String(!params.running));
+   }
+ };
  const toggle = () => { params.running = !params.running; update(); };
  pause.addEventListener('click', toggle);
+ embedPause.addEventListener('click', toggle);
+ const interaction = document.getElementById('interaction') as HTMLSelectElement;
+ const interactionButtons = document.querySelectorAll<HTMLButtonElement>('[data-interaction]');
+ const syncInteraction = () => interactionButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.interaction === interaction.value)));
+ if (document.documentElement.classList.contains('embed')) interaction.value = 'stir';
+ interactionButtons.forEach(button => button.addEventListener('click', () => { interaction.value = button.dataset.interaction!; syncInteraction(); }));
+ interaction.addEventListener('change', syncInteraction);
+ syncInteraction();
  document.getElementById('reset')!.addEventListener('click', () => { params.resetRequested = true; });
  const quality = document.getElementById('quality') as HTMLSelectElement;
  particleCountTexts.forEach(text => quality.add(new Option(text, text)));
@@ -150,9 +164,9 @@ async function main() {
 	}
 
 	const simulationParams: simulationParam[] = [
- { particleCount: 24000, initBoxSize:[28,38,28], initDistance:43, mouseRadius:7, cameraTargetY:21, guiText:'Glass · 24,000' },
- { particleCount: 16000, initBoxSize:[36,48,36], initDistance:56, mouseRadius:10, cameraTargetY:26, guiText:'Balanced · 16,000' },
- { particleCount: 30000, initBoxSize:[46,60,46], initDistance:72, mouseRadius:14, cameraTargetY:33, guiText:'Detailed · 30,000' }
+ { particleCount: 12000, initBoxSize:[26,30,26], initDistance:42, mouseRadius:5, cameraTargetY:13.5, guiText:'Light · 12,000' },
+ { particleCount: 24000, initBoxSize:[32,38,32], initDistance:53, mouseRadius:7, cameraTargetY:17.5, guiText:'Balanced · 24,000' },
+ { particleCount: 40000, initBoxSize:[38,46,38], initDistance:65, mouseRadius:9, cameraTargetY:21.5, guiText:'Detailed · 40,000' }
  ]
 	const particleCountTexts = simulationParams.map(param => param.guiText)
 	const guiParams = initGui(particleCountTexts)
