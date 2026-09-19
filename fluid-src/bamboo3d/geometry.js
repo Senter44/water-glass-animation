@@ -2,7 +2,7 @@
   const grid = [72, 60, 36];
   const pivot = [54, 35, 18];
   const length = 26, outer = 4.7, inner = 4.05, cut = .85;
-  const angleForHeight = h => .48 - Math.max(0, Math.min(100, h)) * .007;
+  const angleForHeight = h => .24 - Math.max(0, Math.min(100, h)) * .0046;
   function toWorld(p, a) {
     const x = p[0] - length, c = Math.cos(a), s = Math.sin(a);
     return [pivot[0] + c * x - s * p[1], pivot[1] + s * x + c * p[1], pivot[2] + p[2]];
@@ -34,7 +34,7 @@
   function initialParticles(count, angle) {
     const points = [], step = .68;
     for (let x = 1; x < 24.8; x += step) {
-      for (let y = -3.65; y < -.15; y += step) {
+      for (let y = -3.65; y < -1.35; y += step) {
         for (let z = -3.6; z < 3.7; z += step) {
           const p = [x, y, z];
           if (solidDistance(p) > .3 && Math.hypot(y, z) < 3.7) points.push(toWorld(p, angle));
@@ -51,5 +51,14 @@
     if (points.length < count) throw new Error('Particle count exceeds the basin capacity');
     return points.slice(0, count);
   }
-  globalThis.BambooGeometry = { grid, pivot, length, outer, inner, cut, angleForHeight, toWorld, toLocal, solidDistance, projectOut, initialParticles };
+  class EmissionBudget {
+    credit = 0;
+    take(flow, steps) {
+      this.credit += Math.max(0, Math.min(1, flow)) * 10 * Math.max(0, Math.min(6, steps));
+      const count = Math.floor(this.credit + 1e-9);
+      this.credit = Math.max(0, this.credit - count);
+      return count;
+    }
+  }
+  globalThis.BambooGeometry = { grid, pivot, length, outer, inner, cut, angleForHeight, toWorld, toLocal, solidDistance, projectOut, initialParticles, EmissionBudget };
 })();
