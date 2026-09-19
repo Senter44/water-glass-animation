@@ -61,5 +61,6 @@
       return count;
     }
   }
-  globalThis.BambooGeometry = { grid, pivot, axle, length, outer, inner, cut, angleForHeight, toWorld, toLocal, solidDistance, projectOut, initialParticles, EmissionBudget };
+  const advanceEmissionCursor = (cursor, emitted, count) => (cursor + emitted) % count;
+  globalThis.BambooGeometry = { grid, pivot, axle, length, outer, inner, cut, angleForHeight, toWorld, toLocal, solidDistance, projectOut, initialParticles, EmissionBudget, advanceEmissionCursor };
 })();

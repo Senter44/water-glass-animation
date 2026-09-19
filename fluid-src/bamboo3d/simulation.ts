@@ -64,7 +64,7 @@ export class Simulation {
     this.values.set([Math.cos(angle),Math.sin(angle),this.time,.12,this.cursor,emit,flow,0,Math.cos(this.lastAngle),Math.sin(this.lastAngle),steps?(angle-this.lastAngle)/(.12*steps):0,0]);
     this.device.queue.writeBuffer(this.bamboo,0,this.values);
     this.lastAngle=angle;
-    if(steps){this.cursor=(this.cursor+40*steps)%this.count;this.time+=steps*.12;}
+    if(steps){this.cursor=BambooGeometry.advanceEmissionCursor(this.cursor,emit,this.count);this.time+=steps*.12;}
   }
   execute(encoder:GPUCommandEncoder, steps:number) {
     if(!steps)return;
