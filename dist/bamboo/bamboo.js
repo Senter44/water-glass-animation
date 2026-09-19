@@ -114,11 +114,12 @@
     }
     const youngest = chain[chain.length - 1];
     const nozzle = geometry().nozzle;
-    if (youngest && model.lastFlow >= 0.18 && youngest.run === model.run && Math.hypot(youngest.x - nozzle.x, youngest.y - nozzle.y) < 8) {
+    const currentFlow = flowForHeight(height);
+    if (youngest && currentFlow >= 0.18 && youngest.run === model.run && Math.hypot(youngest.x - nozzle.x, youngest.y - nozzle.y) < 8) {
       chain.push({ ...youngest, x: nozzle.x, y: nozzle.y, age: 0, vy: youngest.initialSpeed });
     }
     flush();
-    if (model.lastFlow > 0.001 && model.lastFlow < 0.18) {
+    if (currentFlow > 0.001 && currentFlow < 0.18) {
       // A drip grows at the wet lip before detaching under gravity.
       const progress = clamp(model.emission / model.nextDrip, 0, 1);
       const radius = .4 + 2.3 * Math.cbrt(progress);
