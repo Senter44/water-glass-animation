@@ -22,7 +22,7 @@ fn main(@builtin(global_invocation_id) id:vec3u) {
     let local=localPoint(p.position,b); let distance=bambooDistance(local);
     if(distance>=.2){break;}
     let n=worldVector(bambooNormal(local),b); p.position+=n*(.205-distance);
-    let wall=worldVector(vec3f(-local.y,local.x-26,0),b)*b.previous.z;
+    let wall=worldVector(vec3f(-local.y,local.x-17,0),b)*b.previous.z;
     p.v-=n*min(0.,dot(p.v-wall,n));
   }
   if(p.position.y<14.) {

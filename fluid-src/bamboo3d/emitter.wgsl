@@ -10,8 +10,8 @@ fn main(@builtin(global_invocation_id) id:vec3u) {
   var p=particles[index];
   if(p.position.y>12.){return;}
   let seed=f32(index)+b.rotation.z*173.;
-  let y=-3.3+random(seed)*1.6; let z=(random(seed+1.)-.5)*3.;
-  p.position=worldPoint(vec3f(23.2+random(seed+2.)*.6,y,z),b);
-  p.v=worldVector(vec3f(-.12,0,0),b);
+  // A fixed feeder remains above the scoop while the scoop rotates underneath it.
+  p.position=vec3f(28.1+(random(seed)-.5)*.9,43.05+random(seed+2.)*1.2,18.+(random(seed+1.)-.5)*.9);
+  p.v=vec3f(-.04,-1.3,0);
   p.C=mat3x3f(vec3f(0),vec3f(0),vec3f(0)); particles[index]=p;
 }

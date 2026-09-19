@@ -49,7 +49,7 @@ export class Renderer {
   }
   camera(yaw:number,pitch:number){
     const aspect=this.canvas.clientWidth/this.canvas.clientHeight;
-    const target=[30,24,18],distance=aspect<.85?82:66;
+    const target=[35,25,18],distance=aspect<.85?96:82;
     const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance];
     const projection=mat4.perspective(.70,aspect,.3,220),view=mat4.lookAt(eye,target,[0,1,0]);
     this.data.set([1/this.canvas.width,1/this.canvas.height,1.05,0],0);

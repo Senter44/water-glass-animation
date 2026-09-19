@@ -1,21 +1,22 @@
 (() => {
   const grid = [72, 60, 36];
-  const pivot = [54, 35, 18];
+  const pivot = [42, 28, 18], axle = 17;
   const length = 26, outer = 4.7, inner = 4.05, cut = .85;
   const angleForHeight = h => .24 - Math.max(0, Math.min(100, h)) * .0046;
   function toWorld(p, a) {
-    const x = p[0] - length, c = Math.cos(a), s = Math.sin(a);
+    const x = p[0] - axle, c = Math.cos(a), s = Math.sin(a);
     return [pivot[0] + c * x - s * p[1], pivot[1] + s * x + c * p[1], pivot[2] + p[2]];
   }
   function toLocal(p, a) {
     const x = p[0] - pivot[0], y = p[1] - pivot[1], c = Math.cos(a), s = Math.sin(a);
-    return [c * x + s * y + length, -s * x + c * y, p[2] - pivot[2]];
+    return [c * x + s * y + axle, -s * x + c * y, p[2] - pivot[2]];
   }
   function solidDistance(p) {
     const r = Math.hypot(p[1], p[2]);
     const shell = Math.max(r - outer, inner - r, (cut * p[1] - p[0]) / Math.hypot(1, cut), p[0] - length);
     const back = Math.max(r - outer, Math.abs(p[0] - length) - .4);
-    return Math.min(shell, back);
+    const node = Math.max(r - outer, Math.abs(p[0] - 18) - .4);
+    return Math.min(shell, back, node);
   }
   function projectOut(point) {
     const p = [...point];
@@ -31,9 +32,9 @@
     }
     return p;
   }
-  function initialParticles(count, angle) {
+  function initialParticles(count, angle, fillReservoir = true) {
     const points = [], step = .68;
-    for (let x = 1; x < 24.8; x += step) {
+    for (let x = 1; fillReservoir && x < 17.4; x += step) {
       for (let y = -3.65; y < -1.35; y += step) {
         for (let z = -3.6; z < 3.7; z += step) {
           const p = [x, y, z];
@@ -54,11 +55,11 @@
   class EmissionBudget {
     credit = 0;
     take(flow, steps) {
-      this.credit += Math.max(0, Math.min(1, flow)) * 10 * Math.max(0, Math.min(6, steps));
+      this.credit += Math.max(0, Math.min(1, flow)) * 3 * Math.max(0, Math.min(6, steps));
       const count = Math.floor(this.credit + 1e-9);
       this.credit = Math.max(0, this.credit - count);
       return count;
     }
   }
-  globalThis.BambooGeometry = { grid, pivot, length, outer, inner, cut, angleForHeight, toWorld, toLocal, solidDistance, projectOut, initialParticles, EmissionBudget };
+  globalThis.BambooGeometry = { grid, pivot, axle, length, outer, inner, cut, angleForHeight, toWorld, toLocal, solidDistance, projectOut, initialParticles, EmissionBudget };
 })();

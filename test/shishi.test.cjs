@@ -5,7 +5,7 @@ const vm=require('node:vm');
 const path=require('node:path');
 const context={};
 const file=path.join(__dirname,'../fluid-src/bamboo3d/shishi.js');
-if(fs.existsSync(file))vm.runInNewContext(fs.readFileSync(file,'utf8'),context);
+if(fs.existsSync(file))vm.runInNewContext(fs.readFileSync(file,'utf8'),context,{filename:file});
 function create(){assert.ok(context.ShishiMechanism,'water-weight tipping mechanism exists');return new context.ShishiMechanism();}
 test('an empty bamboo rests against its stone without a timer-driven tip',()=>{
   const m=create();for(let i=0;i<3600;i++)m.step(1/120,0,0);

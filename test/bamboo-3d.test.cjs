@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 const context = {};
 const file = path.join(__dirname, '../fluid-src/bamboo3d/geometry.js');
-if (fs.existsSync(file)) vm.runInNewContext(fs.readFileSync(file, 'utf8'), context);
+if (fs.existsSync(file)) vm.runInNewContext(fs.readFileSync(file, 'utf8'), context, {filename:file});
 
 test('the 3D bamboo has open space inside, a solid wall, and an open diagonal mouth', () => {
   assert.ok(context.BambooGeometry, '3D hollow bamboo geometry exists');

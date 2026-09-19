@@ -20,7 +20,7 @@ export class Simulation {
   private time = 0;
   private cursor = 0;
   private emission = new BambooGeometry.EmissionBudget();
-  private lastAngle = BambooGeometry.angleForHeight(30);
+  private lastAngle = -.30;
   private values = new Float32Array(12);
   constructor(readonly device: GPUDevice) {
     const buffer = (size: number, uniform = false) => {
@@ -49,17 +49,17 @@ export class Simulation {
       stage('Splash grid to particles and collisions',boundary+advance,[this.particles,cells,this.bamboo,dimensions]),
       stage('Copy fluid positions',copy,[this.particles,this.positions,count]),
     ];
-    this.reset(30);
+    this.reset();
   }
-  reset(height:number) {
-    this.lastAngle=BambooGeometry.angleForHeight(height);this.time=0;this.cursor=0;this.emission=new BambooGeometry.EmissionBudget();
-    const points=BambooGeometry.initialParticles(this.count,this.lastAngle);
+  reset() {
+    this.lastAngle=-.30;this.time=0;this.cursor=0;this.emission=new BambooGeometry.EmissionBudget();
+    const points=BambooGeometry.initialParticles(this.count,this.lastAngle,false);
     const data=new Float32Array(this.count*20),positions=new Float32Array(this.count*8);
     points.forEach((p:number[],i:number)=>{data.set(p,i*20);positions.set(p,i*8);});
     this.device.queue.writeBuffer(this.particles,0,data);this.device.queue.writeBuffer(this.positions,0,positions);
   }
-  update(angle:number, steps:number) {
-    const flow=Math.max(0,Math.min(1,(angle+.01)/.25));
+  update(angle:number, steps:number, supply:number) {
+    const flow=Math.max(0,Math.min(1,supply));
     const emit=this.emission.take(flow,steps);
     this.values.set([Math.cos(angle),Math.sin(angle),this.time,.12,this.cursor,emit,flow,0,Math.cos(this.lastAngle),Math.sin(this.lastAngle),steps?(angle-this.lastAngle)/(.12*steps):0,0]);
     this.device.queue.writeBuffer(this.bamboo,0,this.values);

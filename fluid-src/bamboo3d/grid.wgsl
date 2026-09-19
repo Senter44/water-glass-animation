@@ -13,7 +13,7 @@ fn main(@builtin(global_invocation_id) id:vec3u) {
   let local = localPoint(p,b);
   if(bambooDistance(local)<.65) {
     let n = worldVector(bambooNormal(local),b);
-    let wall = worldVector(vec3f(-local.y,local.x-26,0),b)*b.previous.z;
+    let wall = worldVector(vec3f(-local.y,local.x-17,0),b)*b.previous.z;
     v -= n*min(0.,dot(v-wall,n));
   }
   if(p.y < 3.5) { v.y=max(v.y,0.); v.x*=.99; v.z*=.99; }
@@ -21,6 +21,8 @@ fn main(@builtin(global_invocation_id) id:vec3u) {
     let radial=p.xz-vec2f(24,18); let r=length(radial);
     if(r>13. && r<18.) { let n=radial/max(r,.01); let outward=max(0.,dot(v.xz,n)); v.x-=outward*n.x;v.z-=outward*n.y; }
   }
+  // Prescribed inflow velocity inside the fixed feeder, before free fall.
+  if(p.y>40. && length(p.xz-vec2f(28.1,18))<2.5){v=vec3f(-.04,-1.3,0);}
   v=clamp(v,vec3f(-5),vec3f(5));
   cells[id.x].vx=i32(v.x*1e6); cells[id.x].vy=i32(v.y*1e6); cells[id.x].vz=i32(v.z*1e6);
 }
