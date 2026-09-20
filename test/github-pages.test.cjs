@@ -15,7 +15,15 @@ test('WebGPU builds use relative paths on a GitHub project site', () => {
 
 test('GitHub Pages deploys the complete static dist directory', () => {
   const workflow = read('.github/workflows/pages.yml');
-  assert.match(workflow, /actions\/deploy-pages@v4/);
+  for (const action of ['checkout', 'configure-pages', 'upload-pages-artifact', 'deploy-pages']) {
+    assert.match(workflow, new RegExp(`actions/${action}@[0-9a-f]{40}`));
+  }
+  assert.doesNotMatch(workflow, /uses:\s*actions\/[^@]+@v\d/);
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm run build/);
+  assert.match(workflow, /node build-bamboo\.mjs/);
+  assert.match(workflow, /node --test test\/\*\.test\.cjs/);
+  assert.match(workflow, /git diff --exit-code -- dist/);
   assert.match(workflow, /path:\s*dist/);
   assert.ok(fs.existsSync(path.join(root, 'dist/.nojekyll')));
 });
