@@ -18,8 +18,8 @@ function page(hash='') {
   }
   for(const match of html.matchAll(/\bid="([^"]+)"/g)) elements.set(match[1],element(match[1]));
   const tabs=[...html.matchAll(/<button\b[^>]*\bid="([^"]+)"[^>]*\brole="tab"[^>]*>/g)].map(match=>elements.get(match[1]));
-  const location={hash};
-  const context={location,history:{replaceState(_state,_title,next){location.hash=next;}},document:{
+  const location={hash},events={};
+  const context={location,addEventListener(event,callback){events[event]=callback;},history:{replaceState(_state,_title,next){location.hash=next;}},document:{
     querySelectorAll(){return tabs;},getElementById(id){return elements.get(id);},createElement(){return element();},
   }};
   const script=path.join(root,'compare.js');
@@ -27,6 +27,7 @@ function page(hash='') {
   return {html,tabs,elements,location,
     click(id){elements.get(id).events.click();},
     key(id,key){elements.get(id).events.keydown({key,preventDefault(){}});},
+    navigate(hash){location.hash=hash;events.hashchange?.();},
     frames(){return [...elements.values()].flatMap(el=>el.children);},
   };
 }
@@ -70,4 +71,10 @@ test('keyboard navigation reaches and wraps around the fourth tab',()=>{
 test('unknown fragments fall back to the original animation',()=>{
   const p=page('#unknown');assert.equal(p.location.hash,'#pour');
   assert.equal(p.frames().length,1);assert.equal(p.frames()[0].src,'../?embed=study');
+});
+
+test('links inside an embedded scene switch the parent tab when its fragment changes',()=>{
+  const p=page('#water-3d');p.navigate('#bamboo');
+  assert.equal(p.elements.get('bamboo-tab').attrs['aria-selected'],'true');
+  assert.equal(p.frames().length,1);assert.equal(p.frames()[0].src,'../bamboo/');
 });
