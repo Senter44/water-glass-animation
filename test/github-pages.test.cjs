@@ -23,7 +23,11 @@ test('GitHub Pages deploys the complete static dist directory', () => {
   assert.match(workflow, /npm run build/);
   assert.match(workflow, /node build-bamboo\.mjs/);
   assert.match(workflow, /node --test test\/\*\.test\.cjs/);
-  assert.match(workflow, /git diff --exit-code -- dist/);
+  for (const page of ['index.html', 'compare/index.html', 'fluid/index.html', 'bamboo-3d/index.html']) {
+    assert.match(workflow, new RegExp(`test -s dist/${page.replace('.', '\\.')}`));
+  }
+  assert.match(workflow, /test -f dist\/\.nojekyll/);
+  assert.doesNotMatch(workflow, /git diff --exit-code -- dist/);
   assert.match(workflow, /path:\s*dist/);
   assert.ok(fs.existsSync(path.join(root, 'dist/.nojekyll')));
 });

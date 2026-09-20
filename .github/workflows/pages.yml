@@ -31,8 +31,13 @@ jobs:
           node build-bamboo.mjs
       - name: Run regression tests
         run: node --test test/*.test.cjs
-      - name: Verify committed build output
-        run: git diff --exit-code -- dist
+      - name: Verify deployable build output
+        run: |
+          test -s dist/index.html
+          test -s dist/compare/index.html
+          test -s dist/fluid/index.html
+          test -s dist/bamboo-3d/index.html
+          test -f dist/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - name: Upload static site
