@@ -45,5 +45,9 @@ tabs.forEach((tab, index) => {
 });
 
 document.getElementById('reset-physics').addEventListener('click', () => loadStudy(studies[1]));
-const initialTab = tabs.findIndex(tab => `#${tab.id.replace('-tab', '')}` === location.hash);
-selectTab(initialTab < 0 ? 0 : initialTab);
+function selectFragment() {
+  const index = tabs.findIndex(tab => `#${tab.id.replace('-tab', '')}` === location.hash);
+  selectTab(index < 0 ? 0 : index);
+}
+addEventListener('hashchange', selectFragment);
+selectFragment();
