@@ -38,15 +38,15 @@ test('3D water has its own accessible, directly linkable tab',()=>{
   assert.match(p.html, /id="water-3d-tab"[^>]*aria-controls="water-3d-panel"/);
   assert.match(p.html, /id="water-3d-panel"[^>]*aria-labelledby="water-3d-tab"/);
   assert.equal(p.elements.get('water-3d-tab').attrs['aria-selected'],'true');
-  assert.equal(p.frames()[0].src,'../bamboo-3d/');
+  assert.equal(p.frames()[0].src,'../bamboo-3d/?v=tabs-4');
 });
 
 test('switching Bamboo, 3D water and physics keeps only the active scene loaded',()=>{
   const p=page('#bamboo');
-  assert.equal(p.frames()[0].src,'../bamboo/');
+  assert.equal(p.frames()[0].src,'../bamboo/?v=tabs-4');
   p.click('water-3d-tab');
   assert.equal(p.frames().length,1);
-  assert.equal(p.frames()[0].src,'../bamboo-3d/');
+  assert.equal(p.frames()[0].src,'../bamboo-3d/?v=tabs-4');
   assert.equal(p.elements.get('bamboo-panel').hidden,true);
   const existing=p.frames()[0];p.click('water-3d-tab');
   assert.equal(p.frames()[0],existing,'reselecting a tab does not restart its animation');
@@ -76,5 +76,5 @@ test('unknown fragments fall back to the original animation',()=>{
 test('links inside an embedded scene switch the parent tab when its fragment changes',()=>{
   const p=page('#water-3d');p.navigate('#bamboo');
   assert.equal(p.elements.get('bamboo-tab').attrs['aria-selected'],'true');
-  assert.equal(p.frames().length,1);assert.equal(p.frames()[0].src,'../bamboo/');
+  assert.equal(p.frames().length,1);assert.equal(p.frames()[0].src,'../bamboo/?v=tabs-4');
 });
