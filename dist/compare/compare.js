@@ -3,6 +3,7 @@ const studies = [
   { panel: document.getElementById('pour-panel'), host: document.getElementById('pour-host'), id: 'pour-frame', src: '../?embed=study', title: 'Original Pour water animation with Play and Pause controls' },
   { panel: document.getElementById('physics-panel'), host: document.getElementById('physics-host'), id: 'fluid-frame', src: '../fluid/?embed=glass', title: 'Interactive Splash water in a 3D glass' },
   { panel: document.getElementById('bamboo-panel'), host: document.getElementById('bamboo-host'), id: 'bamboo-frame', src: '../bamboo/', title: 'Move the bamboo up and down to pour water' },
+  { panel: document.getElementById('water-3d-panel'), host: document.getElementById('water-3d-host'), id: 'water-3d-frame', src: '../bamboo-3d/', title: 'Interactive 3D tipping bamboo fountain with Splash liquid physics' },
 ];
 
 function loadStudy(study) {

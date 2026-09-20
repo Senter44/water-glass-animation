@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Three water studies: Pour water, interactive Splash physics, and a bamboo spout you can move to pour.">
+  <meta name="description" content="Four water studies: Pour water, interactive Splash physics, a bamboo spout, and a real-time 3D tipping bamboo fountain.">
   <title>Pour — Water studies</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23081420'/%3E%3Cpath d='M7 7h18l-2 19H9L7 7z' fill='none' stroke='%2394e7f1' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="tabs.css">
@@ -16,6 +16,7 @@
       <button id="pour-tab" type="button" role="tab" aria-selected="true" aria-controls="pour-panel" tabindex="0"><span>01</span> Pour water</button>
       <button id="physics-tab" type="button" role="tab" aria-selected="false" aria-controls="physics-panel" tabindex="-1"><span>02</span> Interactive physics</button>
       <button id="bamboo-tab" type="button" role="tab" aria-selected="false" aria-controls="bamboo-panel" tabindex="-1"><span>03</span> Bamboo</button>
+      <button id="water-3d-tab" type="button" role="tab" aria-selected="false" aria-controls="water-3d-panel" tabindex="-1"><span>04</span> 3D water</button>
     </div>
     <section id="pour-panel" class="panel" role="tabpanel" aria-labelledby="pour-tab">
       <header class="panel-heading"><h1>Pour water</h1><a href="../">Open original ↗</a></header>
@@ -29,7 +30,11 @@
       <header class="panel-heading"><div><p>MOVE / POUR / RIPPLE</p><h1>Bamboo</h1></div><a href="../bamboo/">Open full scene ↗</a></header>
       <div class="scene-host" id="bamboo-host"></div>
     </section>
-    <noscript><p><a href="../">Open Pour water</a> · <a href="../fluid/">Open interactive physics</a> · <a href="../bamboo/">Open bamboo</a>. Enable JavaScript to switch tabs and run the animations.</p></noscript>
+    <section id="water-3d-panel" class="panel" role="tabpanel" aria-labelledby="water-3d-tab" hidden>
+      <header class="panel-heading"><div><p>SPLASH / WEBGPU</p><h1>3D water</h1></div><a href="../bamboo-3d/">Open full scene ↗</a></header>
+      <div class="scene-host" id="water-3d-host"></div>
+    </section>
+    <noscript><p><a href="../">Open Pour water</a> · <a href="../fluid/">Open interactive physics</a> · <a href="../bamboo/">Open bamboo</a> · <a href="../bamboo-3d/">Open 3D water</a>. Enable JavaScript to switch tabs and run the animations.</p></noscript>
   </main>
 </body>
 </html>

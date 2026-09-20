@@ -5,7 +5,7 @@ body { margin: 0; min-width: 320px; }
 .brand { color: #eafaff; text-decoration: none; font-size: 14px; font-weight: 750; letter-spacing: .15em; }
 .topbar > span { color: #92aeba; font-size: 14px; }
 main { width: min(1440px, 100%); margin: auto; padding: 20px clamp(12px, 3vw, 40px) 24px; }
-.tabs { display: flex; gap: 6px; border-bottom: 1px solid #9fcdda33; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid #9fcdda33; }
 .tabs button { min-height: 52px; padding: 12px 22px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: #8faeba; font: inherit; font-size: 16px; font-weight: 600; line-height: 1.4; cursor: pointer; }
 .tabs button span { margin-right: 8px; color: #6694a5; font: italic 19px Georgia, serif; }
 .tabs button[aria-selected="true"] { border-bottom-color: #9aebf0; color: #e5fcff; background: linear-gradient(transparent, #86e4f00b); }
@@ -22,7 +22,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #bdffff; outline-offs
 @media (max-width: 520px) {
   .topbar { height: 54px; }
   main { padding-top: 12px; }
-  .tabs button { flex: 1; padding: 12px 6px; font-size: 14px; }
+  .tabs button { flex: 1 1 calc(50% - 3px); padding: 12px 6px; font-size: 14px; }
   .tabs button span { margin-right: 4px; font-size: 16px; }
   .scene-host { height: max(460px, calc(100svh - 218px)); }
 }
